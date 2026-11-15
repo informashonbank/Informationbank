@@ -22,6 +22,79 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Validate website structure and local links
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          import posixpath
+          import sys
+
+          root = Path(".")
+          homepage = root / "index.html"
+          if not homepage.is_file():
+              raise SystemExit("Missing required homepage: index.html")
+
+          source = homepage.read_text(encoding="utf-8")
+          class Audit(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = set()
+                  self.links = []
+                  self.title_depth = 0
+                  self.title = []
+                  self.description = ""
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if attrs.get("id"):
+                      self.ids.add(attrs["id"])
+                  for key in ("href", "src"):
+                      value = attrs.get(key, "").strip()
+                      if value:
+                          self.links.append(value)
+                  if tag == "title":
+                      self.title_depth += 1
+                  if tag == "meta" and attrs.get("name", "").lower() == "description":
+                      self.description = attrs.get("content", "")
+              def handle_endtag(self, tag):
+                  if tag == "title" and self.title_depth:
+                      self.title_depth -= 1
+              def handle_data(self, data):
+                  if self.title_depth:
+                      self.title.append(data)
+
+          audit = Audit()
+          audit.feed(source)
+          title = "".join(audit.title).strip()
+          required_ids = {"searchForm", "searchInput", "quickTopics", "discoveryPanel"}
+          missing_ids = sorted(required_ids - audit.ids)
+          if "InformationBank" not in title:
+              print("Homepage title is missing or incorrect.", file=sys.stderr)
+              sys.exit(1)
+          if len(audit.description.strip()) < 40:
+              print("Homepage meta description is missing or too short.", file=sys.stderr)
+              sys.exit(1)
+          if missing_ids:
+              print("Missing required homepage elements: " + ", ".join(missing_ids), file=sys.stderr)
+              sys.exit(1)
+
+          missing_files = []
+          for raw in audit.links:
+              parsed = urlsplit(raw)
+              if parsed.scheme or parsed.netloc or not parsed.path:
+                  continue
+              target = posixpath.normpath(posixpath.join(".", parsed.path.lstrip("/")))
+              if target.startswith("../") or not (root / target).is_file():
+                  missing_files.append(raw)
+          if missing_files:
+              print("Broken local homepage references: " + ", ".join(sorted(set(missing_files))), file=sys.stderr)
+              sys.exit(1)
+          print(f"Structure audit passed: title, description, {len(audit.ids)} IDs, and {len(audit.links)} local/external references checked.")
+          PY
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -62,8 +135,15 @@ jobs:
               --output "$response_file" --write-out '%{http_code}' \
               "$SITE_URL" 2>/dev/null || true)"
 
-            if [ "$status" = "200" ] && grep -Fq '<title>InformationBank' "$response_file"; then
-              echo "Smoke test passed: homepage returned HTTP 200 and the expected title."
+            if [ "$status" = "200" ] \
+              && [ "$(wc -c < "$response_file")" -gt 5000 ] \
+              && grep -Fq '<title>InformationBank' "$response_file" \
+              && grep -Fq 'id="searchForm"' "$response_file" \
+              && grep -Fq 'id="searchInput"' "$response_file" \
+              && grep -Fq 'id="quickTopics"' "$response_file" \
+              && grep -Fq 'id="discoveryPanel"' "$response_file" \
+              && grep -Fq 'name="description"' "$response_file"; then
+              echo "Strict smoke test passed: HTTP 200, substantial HTML, expected title, description, search form, and discovery sections."
               exit 0
             fi
 
