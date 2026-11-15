@@ -43,3 +43,34 @@ jobs:
       - name: Publish to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Smoke test published website
+        shell: bash
+        env:
+          SITE_URL: https://informashonbank.github.io/Informationbank/
+        run: |
+          set -uo pipefail
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+
+          # GitHub Pages can take a short time to propagate a new deployment.
+          # Retry transient DNS, TLS, gateway, and not-yet-published responses.
+          for attempt in $(seq 1 30); do
+            echo "Smoke test attempt $attempt/30: $SITE_URL"
+            status="$(curl --location --silent --show-error \
+              --connect-timeout 10 --max-time 30 \
+              --output "$response_file" --write-out '%{http_code}' \
+              "$SITE_URL" 2>/dev/null || true)"
+
+            if [ "$status" = "200" ] && grep -Fq '<title>InformationBank' "$response_file"; then
+              echo "Smoke test passed: homepage returned HTTP 200 and the expected title."
+              exit 0
+            fi
+
+            echo "Not ready yet (HTTP ${status:-no response}); retrying in 10 seconds."
+            sleep 10
+          done
+
+          echo "::error::The published homepage did not become healthy after 30 attempts."
+          echo "Last HTTP status: ${status:-no response}"
+          exit 1
