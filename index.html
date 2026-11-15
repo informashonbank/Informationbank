@@ -48,7 +48,7 @@
     .search button{border:0}
     .search-submit{padding:11px 23px;border-radius:999px;background:var(--blue);color:white;font-weight:800}
     .search-submit:hover{background:var(--blue-dark)}
-    .search-hint{margin:10px 0 0;color:#8290a7;font-size:.83rem}.make-article-row{display:flex;justify-content:center;margin-top:13px}.make-article-button{border:1px solid #b9c9f7;background:#fff;color:var(--blue);border-radius:999px;padding:10px 18px;font-weight:800}.make-article-button:hover{background:#eff4ff}.make-article-note{margin:7px 0 0;text-align:center;color:#8290a7;font-size:.78rem}
+    .search-hint{margin:10px 0 0;color:#8290a7;font-size:.83rem}.search-modes{display:flex;justify-content:center;gap:8px;margin-top:16px}.search-mode{border:1px solid #dce4f4;background:#ffffffc9;color:#465775;border-radius:999px;padding:8px 15px;font-size:.86rem;font-weight:800}.search-mode[aria-pressed="true"]{background:var(--pale);border-color:#b9c9f7;color:var(--blue-dark);box-shadow:inset 0 0 0 1px #d5e0ff}.web-result{padding:20px 22px;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.web-result+.web-result{margin-top:12px}.web-result .domain{color:#77849a;font-size:.8rem}.web-result h3{margin:5px 0 6px;font-size:1.16rem;line-height:1.35;color:var(--blue)}.web-result h3 a:hover{text-decoration:underline}.web-result p{margin:0;color:#53627b;font-size:.93rem}.web-result .result-age{margin-top:8px;color:#8995a9;font-size:.78rem}.web-search-note{grid-column:1/-1;color:#8290a7;font-size:.8rem;text-align:center;margin:2px 0 8px}.make-article-row{display:flex;justify-content:center;margin-top:13px}.make-article-button{border:1px solid #b9c9f7;background:#fff;color:var(--blue);border-radius:999px;padding:10px 18px;font-weight:800}.make-article-button:hover{background:#eff4ff}.make-article-note{margin:7px 0 0;text-align:center;color:#8290a7;font-size:.78rem}
     .quick-topics{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:23px}
     .quick-topic{border:1px solid #dce4f4;background:#ffffffb8;padding:7px 13px;border-radius:999px;color:#465775;font-size:.86rem;font-weight:750}
     .quick-topic:hover{border-color:#b9c9f7;background:white;color:var(--blue)}
@@ -147,9 +147,10 @@
       <svg class="search-icon" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
       <input id="searchInput" type="search" list="searchSuggestions" placeholder="Search articles, subjects, and ideas…" aria-label="Search InformationBank" autocomplete="off">
       <datalist id="searchSuggestions"></datalist>
-      <button class="search-submit" type="submit">Search</button>
+      <button class="search-submit" id="searchSubmit" type="submit">Search</button>
     </form>
-    <p class="search-hint">Search the InformationBank library by title, topic, summary, or article text.</p>
+    <div class="search-modes" role="group" aria-label="Choose search scope"><button class="search-mode" id="libraryMode" type="button" aria-pressed="true">InformationBank</button><button class="search-mode" id="webMode" type="button" aria-pressed="false">Search the web ↗</button></div>
+    <p class="search-hint" id="searchHint">Search the InformationBank library by title, topic, summary, or article text.</p>
     <div class="make-article-row"><button class="make-article-button" id="makeArticleButton" type="button">✍ Make an article</button></div>
     <p class="make-article-note">Articles are written in a neutral, fact-based style — no personal opinions.</p>
     <div class="quick-topics" id="quickTopics" aria-label="Popular topics">
@@ -160,7 +161,7 @@
       <button class="quick-topic" type="button" data-quick="Nature">Nature</button>
       <button class="quick-topic" type="button" data-quick="Geography">Geography</button>
     </div>
-    <div class="discovery-panel">
+    <div class="discovery-panel" id="discoveryPanel">
       <div class="discovery-top"><strong>Explore even more subjects</strong><span>Choose any topic to search the library</span></div>
       <div class="discovery-topics" id="discoveryTopics" aria-label="More subjects">
         <button class="discovery-topic" type="button" data-discover="Animals">Animals</button>
@@ -260,7 +261,7 @@
   const authClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   let authMode = "signin";
   let allArticles = [], activeCategory = "all", searchTerm = "", lastFilteredCount = 0, generatingArticle = false;
-  let sortMode = "relevance", savedOnly = false;
+  let sortMode = "relevance", savedOnly = false, searchMode = "library", webSearchBusy = false;
   const SAVED_KEY = "informationbank-saved-articles-v1";
   function readSavedIds(){try{return new Set(JSON.parse(localStorage.getItem(SAVED_KEY)||"[]").map(String));}catch(_error){return new Set();}}
   let savedIds = readSavedIds();
@@ -346,6 +347,81 @@
       renderArticles();
     });
   }
+  function setSearchMode(mode){
+    searchMode=mode;
+    const web=mode==="web";
+    $("libraryMode").setAttribute("aria-pressed",String(!web));
+    $("webMode").setAttribute("aria-pressed",String(web));
+    $("searchHint").textContent=web
+      ?"Search across the wider web. Results are provided by an independent search index with strict SafeSearch."
+      :"Search the InformationBank library by title, topic, summary, or article text.";
+    $("searchInput").placeholder=web?"Search the web…":"Search articles, subjects, and ideas…";
+    $("searchSubmit").textContent=web?"Search web":"Search";
+    $("makeArticleButton").parentElement.hidden=web;
+    $("makeArticleButton").parentElement.nextElementSibling.hidden=web;
+    $("quickTopics").hidden=web;
+    $("discoveryPanel").hidden=web;
+    $("sortSelect").hidden=web;
+    $("savedButton").hidden=web;
+    $("surpriseButton").hidden=web;
+    if(!web)renderArticles();
+    else{
+      $("resultsTitle").textContent="Search the wider web";
+      $("count").textContent="Search the web to see results";
+      $("articles").setAttribute("aria-busy","false");
+      $("articles").innerHTML='<div class="empty"><h3>Explore beyond the library</h3><p>Enter a search above to find pages from across the web.</p></div>';
+    }
+  }
+  async function searchTheWeb(query){
+    if(webSearchBusy)return;
+    const clean=query.trim();
+    if(clean.length<2||clean.length>200){$("count").textContent="Enter a search between 2 and 200 characters.";return;}
+    webSearchBusy=true;
+    const host=$("articles");
+    $("resultsTitle").textContent="Web results for “"+clean+"”";
+    $("count").textContent="Searching the web…";
+    host.setAttribute("aria-busy","true");
+    host.innerHTML='<div class="empty"><h3>Searching across the web…</h3><p>Finding useful pages for your query.</p></div>';
+    try{
+      const response=await fetch(SUPABASE_URL+"/functions/v1/web-search",{
+        method:"POST",
+        headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({query:clean})
+      });
+      const data=await response.json();
+      if(!response.ok)throw new Error(data.error||"Web search is unavailable right now.");
+      host.replaceChildren();
+      host.setAttribute("aria-busy","false");
+      const note=document.createElement("p");note.className="web-search-note";note.textContent="Web pages found by Brave Search · Strict SafeSearch · Open a result to visit its source.";
+      host.append(note);
+      const results=Array.isArray(data.results)?data.results:[];
+      $("count").textContent=results.length+(results.length===1?" web result":" web results");
+      if(!results.length){
+        const empty=document.createElement("div");empty.className="empty";
+        const title=document.createElement("h3");title.textContent="No web results found";
+        const message=document.createElement("p");message.textContent="Try a broader search or different wording.";
+        empty.append(title,message);host.append(empty);return;
+      }
+      results.forEach(item=>{
+        const card=document.createElement("article");card.className="web-result";
+        const domain=document.createElement("div");domain.className="domain";domain.textContent=item.domain||"Website";
+        const heading=document.createElement("h3");const link=document.createElement("a");
+        link.href=item.url;link.target="_blank";link.rel="noopener noreferrer";link.textContent=item.title||"Open result";heading.append(link);
+        const description=document.createElement("p");description.textContent=item.description||"Open this page to read more.";
+        card.append(domain,heading,description);
+        if(item.age){const age=document.createElement("div");age.className="result-age";age.textContent=item.age;card.append(age);}
+        host.append(card);
+      });
+    }catch(error){
+      host.setAttribute("aria-busy","false");host.replaceChildren();
+      const empty=document.createElement("div");empty.className="empty";
+      const title=document.createElement("h3");title.textContent="Web search isn't ready yet";
+      const message=document.createElement("p");message.textContent=error.message;
+      empty.append(title,message);host.append(empty);$("count").textContent="Web search unavailable";
+    }finally{webSearchBusy=false;}
+  }
+  $("libraryMode").addEventListener("click",()=>setSearchMode("library"));
+  $("webMode").addEventListener("click",()=>setSearchMode("web"));
   function articleScore(article,terms){
     if(!terms.length)return 0;
     const title=(article.title||"").toLocaleLowerCase(),summary=(article.summary||"").toLocaleLowerCase();
@@ -496,14 +572,15 @@
   $("searchForm").addEventListener("submit",async event=>{
     event.preventDefault();
     savedOnly=false;updateSavedUI();
-    updateSearch($("searchInput").value);
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
+    if(searchMode==="web"){await searchTheWeb($("searchInput").value);return;}
+    updateSearch($("searchInput").value);
     if(searchTerm&&lastFilteredCount===0)await generateArticleForSearch($("searchInput").value.trim());
   });
-  $("searchInput").addEventListener("input",()=>{savedOnly=false;updateSavedUI();updateSearch($("searchInput").value);});
+  $("searchInput").addEventListener("input",()=>{if(searchMode!=="library")return;savedOnly=false;updateSavedUI();updateSearch($("searchInput").value);});
   $("sortSelect").addEventListener("change",event=>{sortMode=event.target.value;renderArticles();});
   $("savedButton").addEventListener("click",()=>{savedOnly=!savedOnly;updateSavedUI();renderArticles();$("results").scrollIntoView({behavior:"smooth",block:"start"});});
-  $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";savedOnly=false;updateSavedUI();const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();$("searchInput").focus();});
+  $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";savedOnly=false;updateSavedUI();if(searchMode==="web"){setSearchMode("web");}else{const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();}$("searchInput").focus();});
   $("surpriseButton").addEventListener("click",()=>{if(!allArticles.length)return;const article=allArticles[Math.floor(Math.random()*allArticles.length)];activeCategory="all";searchTerm="";$("searchInput").value="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();openArticle(article);});
   $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});if(lastFilteredCount===0)generateArticleForSearch(button.dataset.discover);});
   $("quickTopics").addEventListener("click",event=>{
