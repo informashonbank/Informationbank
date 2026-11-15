@@ -200,6 +200,7 @@
       const haystack=[article.title,article.summary,article.content,article.categories?.name].filter(Boolean).join(" ").toLocaleLowerCase();
       return categoryMatch&&haystack.includes(searchTerm);
     });
+    lastFilteredCount=filtered.length;
     const showChessSite=/\bchess\b/i.test(searchTerm);
     $("count").textContent=filtered.length+(filtered.length===1?" article":" articles")+(showChessSite?" · 1 extra website":"");
     $("resultsTitle").textContent=searchTerm?"Search results":activeCategory==="all"?"Popular information":"Explore "+(allArticles.find(a=>a.categories?.slug===activeCategory)?.categories?.name||"topic");
