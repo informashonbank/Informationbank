@@ -41,13 +41,13 @@
 <section class="hero"><div class="wrap">
   <div class="eyebrow">InformationBank search</div>
   <h1>Search <span style="color:var(--blue)">everything.</span></h1>
-  <p>Find useful websites and explore articles from the InformationBank library.</p>
-  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search the web and InformationBank…" aria-label="Search the web and InformationBank"><button class="primary">Search</button></form>
+  <p>Search the web with Google. Enter a question, topic, or website below.</p>
+  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search Google or type a URL…" aria-label="Search the web and InformationBank"><button class="primary">Search</button></form>
 </div></section>
 <main class="wrap">
   <div class="section-head"><div><div class="eyebrow">Browse topics</div><h2>Explore categories</h2></div><span class="muted" id="count"></span></div>
   <div class="categories" id="categories"><button class="chip active" data-category="all">All topics</button></div>
-  <div class="section-head"><h2 id="resultsTitle">Popular information</h2><span class="muted">Web links and library articles</span></div>
+  <div class="section-head"><h2 id="resultsTitle">Popular information</h2><span class="muted">Search the entire web</span></div>
   <section class="grid" id="articles" aria-live="polite"><div class="empty">Loading the library…</div></section>
 </main>
 <footer><div class="wrap">© <span id="year"></span> InformationBank. Keep asking questions.</div></footer>
@@ -110,8 +110,16 @@
   }
   $("closeDialog").addEventListener("click", () => $("articleDialog").close());
   $("articleDialog").addEventListener("click", event => {if(event.target === $("articleDialog")) $("articleDialog").close();});
-  $("searchForm").addEventListener("submit", event => {event.preventDefault();searchTerm=$("searchInput").value.trim().toLowerCase();renderArticles();});
-  $("searchInput").addEventListener("input", () => {searchTerm=$("searchInput").value.trim().toLowerCase();renderArticles();});
+  $("searchForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const query = $("searchInput").value.trim();
+    if(!query) return;
+    window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(query);
+  });
+  $("searchInput").addEventListener("input", () => {
+    searchTerm=$("searchInput").value.trim().toLowerCase();
+    renderArticles();
+  });
   async function start(){
     try{
       const [categories, articles] = await Promise.all([
