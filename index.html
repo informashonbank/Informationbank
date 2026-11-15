@@ -48,7 +48,7 @@
     .search button{border:0}
     .search-submit{padding:11px 23px;border-radius:999px;background:var(--blue);color:white;font-weight:800}
     .search-submit:hover{background:var(--blue-dark)}
-    .search-hint{margin:10px 0 0;color:#8290a7;font-size:.83rem}
+    .search-hint{margin:10px 0 0;color:#8290a7;font-size:.83rem}.make-article-row{display:flex;justify-content:center;margin-top:13px}.make-article-button{border:1px solid #b9c9f7;background:#fff;color:var(--blue);border-radius:999px;padding:10px 18px;font-weight:800}.make-article-button:hover{background:#eff4ff}.make-article-note{margin:7px 0 0;text-align:center;color:#8290a7;font-size:.78rem}
     .quick-topics{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:23px}
     .quick-topic{border:1px solid #dce4f4;background:#ffffffb8;padding:7px 13px;border-radius:999px;color:#465775;font-size:.86rem;font-weight:750}
     .quick-topic:hover{border-color:#b9c9f7;background:white;color:var(--blue)}
@@ -149,6 +149,8 @@
       <button class="search-submit" type="submit">Search</button>
     </form>
     <p class="search-hint">Search the InformationBank library by title, topic, summary, or article text.</p>
+    <div class="make-article-row"><button class="make-article-button" id="makeArticleButton" type="button">✍ Make an article</button></div>
+    <p class="make-article-note">Articles are written in a neutral, fact-based style — no personal opinions.</p>
     <div class="quick-topics" id="quickTopics" aria-label="Popular topics">
       <button class="quick-topic" type="button" data-quick="Science">Science</button>
       <button class="quick-topic" type="button" data-quick="Technology">Technology</button>
@@ -450,6 +452,13 @@
       generatingArticle=false;
     }
   }
+  $("makeArticleButton").addEventListener("click",async()=>{
+    const topic=$("searchInput").value.trim();
+    if(topic.length<3||topic.length>100){$("count").textContent="Enter a topic between 3 and 100 characters.";$("searchInput").focus();return;}
+    updateSearch(topic);
+    $("results").scrollIntoView({behavior:"smooth",block:"start"});
+    await generateArticleForSearch(topic);
+  });
   $("searchForm").addEventListener("submit",async event=>{
     event.preventDefault();
     updateSearch($("searchInput").value);
