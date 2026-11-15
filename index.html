@@ -217,7 +217,8 @@
   const SUPABASE_URL = "https://uiwzpapmsxqmvolknafk.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BznsuKCxYP9wHUPe6_jp8g_fU6wSKlw";
   const headers = {"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY};
-  let allArticles = [], activeCategory = "all", searchTerm = "", lastFilteredCount = 0, generatingArticle = false;\n  let sortMode = "newest";
+  let allArticles = [], activeCategory = "all", searchTerm = "", lastFilteredCount = 0, generatingArticle = false;
+  let sortMode = "newest";
   const $ = id => document.getElementById(id);
   $("year").textContent = new Date().getFullYear();
 
@@ -330,7 +331,11 @@
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
     if(searchTerm&&lastFilteredCount===0)await generateArticleForSearch($("searchInput").value.trim());
   });
-  $("searchInput").addEventListener("input",()=>updateSearch($("searchInput").value));\n  $("sortSelect").addEventListener("change",event=>{sortMode=event.target.value;renderArticles();});\n  $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();$("searchInput").focus();});\n  $("surpriseButton").addEventListener("click",()=>{if(!allArticles.length)return;const article=allArticles[Math.floor(Math.random()*allArticles.length)];activeCategory="all";searchTerm="";$("searchInput").value="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();openArticle(article);});\n  $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});if(lastFilteredCount===0)generateArticleForSearch(button.dataset.discover);});
+  $("searchInput").addEventListener("input",()=>updateSearch($("searchInput").value));
+  $("sortSelect").addEventListener("change",event=>{sortMode=event.target.value;renderArticles();});
+  $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();$("searchInput").focus();});
+  $("surpriseButton").addEventListener("click",()=>{if(!allArticles.length)return;const article=allArticles[Math.floor(Math.random()*allArticles.length)];activeCategory="all";searchTerm="";$("searchInput").value="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();openArticle(article);});
+  $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});if(lastFilteredCount===0)generateArticleForSearch(button.dataset.discover);});
   $("quickTopics").addEventListener("click",event=>{
     const button=event.target.closest("button[data-quick]");if(!button)return;
     const category=button.dataset.quick;
