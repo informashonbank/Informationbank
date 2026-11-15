@@ -81,7 +81,7 @@
       const haystack = (article.title+" "+article.summary+" "+(article.categories?.name||"")).toLowerCase();
       return categoryMatch && haystack.includes(searchTerm);
     });
-    const showChessSite = /\\bchess\\b/i.test(searchTerm);
+    const showChessSite = /\bchess\b/i.test(searchTerm);
     $("count").textContent = filtered.length + (filtered.length === 1 ? " article" : " articles") + (showChessSite ? " · 1 website" : "");
     $("resultsTitle").textContent = searchTerm ? "Search results" : activeCategory === "all" ? "Popular information" : "Explore "+activeCategory;
     const host = $("articles"); host.innerHTML = "";
