@@ -3,56 +3,169 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="InformationBank — a curious place to explore science, technology, history, nature, space, and geography.">
-  <title>InformationBank — Explore what matters</title>
+  <meta name="theme-color" content="#f7f9ff">
+  <meta name="description" content="Explore the world one idea at a time with InformationBank. Discover clear, useful articles about science, technology, history, nature, space, and geography.">
+  <meta property="og:title" content="InformationBank — Explore the world">
+  <meta property="og:description" content="Discover useful ideas, explore topics, and keep learning.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://informashonbank.github.io/Informationbank/">
+  <title>InformationBank — Explore the world one idea at a time</title>
   <style>
-    :root{--ink:#17233b;--muted:#64748b;--paper:#f7f8fc;--card:#fff;--blue:#3157d5;--line:#e6eaf2}
-    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    a{color:inherit;text-decoration:none}.wrap{width:min(1100px,calc(100% - 40px));margin:auto}
-    header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-    .nav{height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-    .brand{display:flex;align-items:center;gap:9px;font-size:1.05rem;font-weight:850;letter-spacing:-.04em}.brand span{color:var(--blue)}.brand-mark{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#eaf0ff;color:var(--blue);font-size:1.55rem;font-weight:900;line-height:1}
-    .nav small{color:var(--muted)}.nav-card-link{background:#eaf0ff;color:#2447bd;border:1px solid #cbd8ff;padding:9px 14px;border-radius:999px;font-size:.9rem;font-weight:800;white-space:nowrap}.nav-card-link:hover{background:#dce6ff}
-    .hero{padding:58px 0 54px;background:linear-gradient(180deg,#fff,#f7f9ff);text-align:center}.hero .wrap{display:flex;flex-direction:column;align-items:center}.search-logo{color:var(--blue);font-size:clamp(7rem,18vw,11rem);font-weight:900;line-height:.88;letter-spacing:-.1em;text-shadow:0 8px 24px #3157d51c;margin:0 0 12px;user-select:none}.hero h1{font-size:clamp(1.8rem,4vw,2.5rem);margin:8px 0 12px;letter-spacing:-.055em}.hero p{margin:0 auto;max-width:580px}.hero .eyebrow{margin-bottom:8px}
-    .eyebrow{color:var(--blue);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
-    h1{font-size:clamp(2.5rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.065em;max-width:760px;margin:15px 0}
-    .hero p{color:var(--muted);max-width:620px;font-size:1.1rem}
-    .search{display:flex;gap:10px;width:min(720px,100%);margin-top:30px;padding:7px;background:#fff;border:1px solid #d9dfeb;border-radius:999px;box-shadow:0 5px 24px #26395c12}.search:focus-within{border-color:#9aafea;box-shadow:0 5px 26px #3157d522}.search input{flex:1;min-width:0;padding:12px 18px;border:0;outline:0;border-radius:999px;font:inherit;background:transparent}.search .primary{border-radius:999px;padding:12px 24px}
-    button{cursor:pointer;font:inherit}.primary{border:0;background:var(--blue);color:white;padding:14px 20px;border-radius:12px;font-weight:750}
-    main{padding:46px 0 80px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:18px}
-    h2{font-size:1.65rem;letter-spacing:-.04em;margin:0}.muted{color:var(--muted)}
-    .categories{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 36px}.chip{border:1px solid var(--line);background:white;color:#40506b;padding:9px 14px;border-radius:99px;font-weight:650}
-    .chip.active,.chip:hover{background:#eaf0ff;border-color:#cbd8ff;color:#2447bd}
-    .grid{display:grid;grid-template-columns:1fr;gap:14px;max-width:820px;margin:0 auto}.results-wrap{max-width:820px;margin:0 auto}.section-head{max-width:820px;margin-left:auto;margin-right:auto}
-    .article{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;min-height:0;display:flex;flex-direction:column;box-shadow:0 3px 14px #1b2b4a08}
-    .article .tag{font-size:.75rem;color:var(--blue);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
-    .article h3{font-size:1.22rem;line-height:1.25;letter-spacing:-.03em;margin:12px 0 8px}
-    .article p{color:var(--muted);margin:0 0 12px}.article button{margin-top:4px;align-self:flex-start;background:none;border:0;padding:0;color:var(--blue);font-weight:800}.external-result{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:0 3px 14px #1b2b4a08}.external-result .domain{font-size:.84rem;color:#64748b}.external-result h3{font-size:1.25rem;margin:6px 0;color:#2453c7}.external-result p{margin:0;color:#526078}.external-result a:hover h3{text-decoration:underline}
-    .empty{grid-column:1/-1;background:white;border:1px dashed #cbd5e1;padding:35px;border-radius:16px;text-align:center;color:var(--muted)}
-    footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:.9rem}
-    dialog{border:0;border-radius:20px;padding:0;width:min(680px,calc(100% - 28px));max-height:85vh;box-shadow:0 25px 90px #101b3380}
-    dialog::backdrop{background:#111c34a8}.modal{padding:30px}.modal h2{margin:8px 0 16px}.modal p{white-space:pre-wrap;color:#43516a}.close{float:right;border:1px solid var(--line);background:white;border-radius:9px;padding:7px 11px}
-    @media(max-width:800px){.hero{padding:62px 0 42px}}
-    @media(max-width:560px){.nav{height:62px}.nav-card-link{font-size:.78rem;padding:8px 10px}.search{gap:4px;padding:5px}.search input{padding:11px 12px}.search .primary{padding:11px 16px}.section-head{align-items:start;flex-direction:column}.nav small{display:none}}
+    :root{color-scheme:light;--ink:#17233b;--muted:#62708a;--paper:#f6f8fd;--surface:#fff;--blue:#3157d5;--blue-dark:#2445b7;--pale:#eaf0ff;--line:#e4e9f3;--shadow:0 12px 35px #1d31520d}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:inherit;text-decoration:none}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #91a9ff;outline-offset:3px}
+    .wrap{width:min(1120px,calc(100% - 40px));margin:auto}
+    .site-header{position:sticky;top:0;z-index:10;background:#ffffffed;border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+    .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-size:1.1rem;font-weight:900;letter-spacing:-.045em}
+    .brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:var(--pale);color:var(--blue);font-size:1.7rem;font-weight:950;line-height:1}
+    .brand-name span{color:var(--blue)}
+    .nav-links{display:flex;align-items:center;gap:10px}
+    .nav-link{padding:9px 13px;border-radius:999px;color:#43516b;font-weight:750;font-size:.9rem}
+    .nav-link:hover{background:var(--pale);color:var(--blue-dark)}
+    .nav-cta{background:var(--blue);color:white}
+    .nav-cta:hover{background:var(--blue-dark);color:white}
+    .hero{position:relative;overflow:hidden;padding:76px 0 66px;background:radial-gradient(ellipse at 50% 0%,#e8efff 0%,#f9fbff 48%,#f6f8fd 100%);text-align:center}
+    .hero:before,.hero:after{content:"";position:absolute;border:1px solid #dbe5ff;border-radius:50%;pointer-events:none}
+    .hero:before{width:430px;height:430px;left:-290px;top:20px}
+    .hero:after{width:520px;height:520px;right:-360px;top:-70px}
+    .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+    .eyebrow{color:var(--blue);font-size:.76rem;font-weight:900;text-transform:uppercase;letter-spacing:.16em}
+    .hero-logo{display:grid;place-items:center;width:94px;height:94px;margin:20px 0 13px;border-radius:28px;background:white;color:var(--blue);font-size:5.4rem;font-weight:950;line-height:.9;letter-spacing:-.12em;box-shadow:0 12px 35px #3157d51b}
+    h1{max-width:800px;margin:8px 0 12px;font-size:clamp(2.4rem,6vw,4.5rem);line-height:1.02;letter-spacing:-.075em}
+    .hero-copy{max-width:610px;margin:0;color:var(--muted);font-size:1.12rem}
+    .search{display:flex;align-items:center;gap:8px;width:min(740px,100%);margin-top:30px;padding:7px 8px 7px 18px;background:white;border:1px solid #d9e1f1;border-radius:999px;box-shadow:0 12px 36px #1c31520f}
+    .search:focus-within{border-color:#9aafea;box-shadow:0 12px 36px #3157d522}
+    .search-icon{color:#7887a1;flex:none}
+    .search input{flex:1;min-width:0;padding:10px 4px;border:0;outline:0;background:transparent;color:var(--ink)}
+    .search input:focus-visible{outline:0}
+    .search button{border:0}
+    .search-submit{padding:11px 23px;border-radius:999px;background:var(--blue);color:white;font-weight:800}
+    .search-submit:hover{background:var(--blue-dark)}
+    .search-hint{margin:10px 0 0;color:#8290a7;font-size:.83rem}
+    .quick-topics{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin-top:23px}
+    .quick-topic{border:1px solid #dce4f4;background:#ffffffb8;padding:7px 13px;border-radius:999px;color:#465775;font-size:.86rem;font-weight:750}
+    .quick-topic:hover{border-color:#b9c9f7;background:white;color:var(--blue)}
+    .main{padding:55px 0 78px}
+    .section-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:20px}
+    .section-heading h2{margin:3px 0 0;font-size:1.8rem;line-height:1.15;letter-spacing:-.05em}
+    .section-note{color:var(--muted);font-size:.9rem}
+    .topic-list{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 42px}
+    .topic-chip{border:1px solid var(--line);background:white;color:#45536d;padding:9px 15px;border-radius:999px;font-size:.9rem;font-weight:750;transition:.15s}
+    .topic-chip:hover,.topic-chip[aria-pressed="true"]{background:var(--pale);border-color:#c9d6ff;color:var(--blue-dark)}
+    .results-top{margin-top:8px}
+    .result-count{color:var(--muted);font-size:.9rem}
+    .article-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .article{display:flex;flex-direction:column;min-height:210px;padding:23px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);transition:transform .16s,border-color .16s,box-shadow .16s}
+    .article:hover{transform:translateY(-3px);border-color:#cbd7f7;box-shadow:0 18px 42px #1d315214}
+    .article-tag{align-self:flex-start;padding:5px 9px;border-radius:7px;background:var(--pale);color:var(--blue-dark);font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.09em}
+    .article h3{margin:13px 0 8px;font-size:1.24rem;line-height:1.25;letter-spacing:-.035em}
+    .article p{margin:0 0 17px;color:var(--muted);font-size:.95rem}
+    .article-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto}
+    .read-time{color:#8995a9;font-size:.8rem}
+    .read-button{border:0;background:transparent;color:var(--blue);font-size:.9rem;font-weight:850;padding:5px 0}
+    .read-button:hover{color:var(--blue-dark);text-decoration:underline}
+    .external-result{grid-column:1/-1;padding:20px 23px;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+    .external-result .domain{font-size:.82rem;color:#7b879b}
+    .external-result h3{margin:5px 0;color:var(--blue);font-size:1.2rem}
+    .external-result p{margin:0;color:var(--muted)}
+    .empty{grid-column:1/-1;padding:40px 22px;background:white;border:1px dashed #c9d3e4;border-radius:18px;text-align:center}
+    .empty h3{margin:0 0 5px;font-size:1.15rem}
+    .empty p{margin:0;color:var(--muted)}
+    .feature-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px}
+    .feature{padding:19px;border:1px solid var(--line);border-radius:15px;background:#ffffffa8}
+    .feature strong{display:block;margin-bottom:3px;font-size:.95rem}
+    .feature span{color:var(--muted);font-size:.86rem}
+    .site-footer{border-top:1px solid var(--line);background:#fff;padding:27px 0;color:var(--muted);font-size:.88rem}
+    .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .footer-links{display:flex;gap:16px;flex-wrap:wrap}
+    .footer-links a:hover{color:var(--blue);text-decoration:underline}
+    dialog{width:min(720px,calc(100% - 28px));max-height:86vh;padding:0;border:0;border-radius:22px;box-shadow:0 25px 90px #101b3380}
+    dialog::backdrop{background:#111c34a8;backdrop-filter:blur(3px)}
+    .modal{padding:clamp(22px,5vw,36px)}
+    .modal-top{display:flex;justify-content:space-between;align-items:center;gap:15px}
+    .modal h2{margin:13px 0 7px;font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.12;letter-spacing:-.05em}
+    .modal-meta{color:#8995a9;font-size:.86rem}
+    .modal-content{margin:20px 0 0;color:#40506a;white-space:pre-wrap;line-height:1.8}
+    .close{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 12px;color:#40506a;font-weight:750}
+    .close:hover{background:var(--paper)}
+    @media(max-width:760px){.hero{padding:60px 0 52px}.article-grid{grid-template-columns:1fr}.feature-strip{grid-template-columns:1fr}.section-heading{align-items:start;flex-direction:column}.footer-inner{align-items:flex-start;flex-direction:column}}
+    @media(max-width:520px){.wrap{width:min(100% - 28px,1120px)}.nav{height:64px}.brand{font-size:1rem}.brand-mark{width:34px;height:34px}.nav-links{gap:3px}.nav-link{font-size:.78rem;padding:8px 9px}.hero-logo{width:78px;height:78px;font-size:4.5rem;border-radius:23px}.search{padding:6px 6px 6px 13px}.search-submit{padding:10px 15px}.search-hint{font-size:.77rem}.main{padding-top:40px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
   </style>
 </head>
 <body>
-<header><div class="wrap nav"><a class="brand" href="#" aria-label="InformationBank home"><span class="brand-mark">?</span>Information<span>Bank</span></a><a class="nav-card-link" href="business-cards.html">Print business cards ↗</a></div></header>
-<section class="hero"><div class="wrap">
-  <div class="search-logo" aria-label="InformationBank question mark logo">?</div>
-  <h1>InformationBank</h1>
-  <p>Explore the world one idea at a time.</p>
-  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search InformationBank…" aria-label="Search the web and InformationBank"><button class="primary">Search</button></form>
-  <a class="primary" href="business-cards.html" style="display:inline-block;margin-top:14px;text-decoration:none">Print 10 business cards on A4</a>
-</div></section>
-<main class="wrap">
-  <div class="section-head"><div><div class="eyebrow">Browse topics</div><h2>Explore categories</h2></div><span class="muted" id="count"></span></div>
-  <div class="categories" id="categories"><button class="chip active" data-category="all">All topics</button></div>
-  <div class="section-head"><h2 id="resultsTitle">Popular information</h2><span class="muted">Search the InformationBank library</span></div>
-  <section class="grid" id="articles" aria-live="polite"><div class="empty">Loading the library…</div></section>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="InformationBank home"><span class="brand-mark">?</span><span class="brand-name">Information<span>Bank</span></span></a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a class="nav-link" href="#topics">Topics</a>
+      <a class="nav-link nav-cta" href="business-cards.html">Business cards ↗</a>
+    </nav>
+  </div>
+</header>
+<section class="hero" id="top">
+  <div class="wrap hero-inner">
+    <div class="eyebrow">Curiosity starts here</div>
+    <div class="hero-logo" aria-hidden="true">?</div>
+    <h1>Explore the world<br>one idea at a time.</h1>
+    <p class="hero-copy">A place to discover useful information, follow your curiosity, and learn something new every day.</p>
+    <form class="search" id="searchForm" role="search">
+      <svg class="search-icon" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+      <input id="searchInput" type="search" placeholder="Search articles and ideas…" aria-label="Search InformationBank">
+      <button class="search-submit" type="submit">Search</button>
+    </form>
+    <p class="search-hint">Search the InformationBank library by title, topic, summary, or article text.</p>
+    <div class="quick-topics" id="quickTopics" aria-label="Popular topics">
+      <button class="quick-topic" type="button" data-quick="Science">Science</button>
+      <button class="quick-topic" type="button" data-quick="Technology">Technology</button>
+      <button class="quick-topic" type="button" data-quick="History">History</button>
+      <button class="quick-topic" type="button" data-quick="Space">Space</button>
+    </div>
+  </div>
+</section>
+<main class="wrap main">
+  <section id="topics" aria-labelledby="topicsTitle">
+    <div class="section-heading">
+      <div><div class="eyebrow">Find your next rabbit hole</div><h2 id="topicsTitle">Explore topics</h2></div>
+      <span class="section-note">Choose a subject to narrow the library</span>
+    </div>
+    <div class="topic-list" id="categories" aria-label="Filter articles by topic">
+      <button class="topic-chip" type="button" data-category="all" aria-pressed="true">All topics</button>
+    </div>
+  </section>
+  <section class="results-top" id="results" aria-labelledby="resultsTitle">
+    <div class="section-heading">
+      <div><div class="eyebrow">Keep discovering</div><h2 id="resultsTitle">Popular information</h2></div>
+      <span class="result-count" id="count" aria-live="polite">Loading articles…</span>
+    </div>
+    <div class="article-grid" id="articles" aria-live="polite" aria-busy="true">
+      <div class="empty"><h3>Getting the library ready…</h3><p>Just a moment while the latest articles load.</p></div>
+    </div>
+  </section>
+  <section class="feature-strip" aria-label="About InformationBank">
+    <div class="feature"><strong>Explore widely</strong><span>Browse subjects from science to history and beyond.</span></div>
+    <div class="feature"><strong>Learn at your pace</strong><span>Open an article and take your time with each idea.</span></div>
+    <div class="feature"><strong>Stay curious</strong><span>Start with one question and see where it leads.</span></div>
+  </section>
 </main>
-<footer><div class="wrap">© <span id="year"></span> InformationBank — Explore the world one idea at a time.</div></footer>
-<dialog id="articleDialog"><div class="modal"><button class="close" id="closeDialog" aria-label="Close">Close</button><div class="eyebrow" id="modalCategory"></div><h2 id="modalTitle"></h2><div class="muted" id="modalMeta"></div><p id="modalContent"></p></div></dialog>
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>© <span id="year"></span> InformationBank · Explore the world one idea at a time.</span>
+    <div class="footer-links"><a href="#top">Back to top ↑</a><a href="business-cards.html">Business cards</a></div>
+  </div>
+</footer>
+<dialog id="articleDialog" aria-labelledby="modalTitle">
+  <article class="modal">
+    <div class="modal-top"><span class="eyebrow" id="modalCategory">InformationBank</span><button class="close" id="closeDialog" type="button">Close ✕</button></div>
+    <h2 id="modalTitle"></h2><div class="modal-meta" id="modalMeta"></div><div class="modal-content" id="modalContent"></div>
+  </article>
+</dialog>
 <script>
   const SUPABASE_URL = "https://uiwzpapmsxqmvolknafk.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BznsuKCxYP9wHUPe6_jp8g_fU6wSKlw";
@@ -60,76 +173,98 @@
   let allArticles = [], activeCategory = "all", searchTerm = "";
   const $ = id => document.getElementById(id);
   $("year").textContent = new Date().getFullYear();
+
   async function api(path){
-    const response = await fetch(SUPABASE_URL + "/rest/v1/" + path, {headers});
+    const response = await fetch(SUPABASE_URL + "/rest/v1/" + path,{headers});
     if(!response.ok) throw new Error("Library request failed ("+response.status+").");
     return response.json();
   }
   function renderCategories(categories){
-    const host = $("categories"); host.innerHTML = "";
-    const all = document.createElement("button"); all.className = "chip active"; all.dataset.category = "all"; all.textContent = "All topics"; host.append(all);
-    categories.forEach(category => { const button = document.createElement("button"); button.className = "chip"; button.dataset.category = category.slug; button.textContent = category.name; host.append(button); });
-    host.addEventListener("click", event => {
-      const button = event.target.closest("button[data-category]"); if(!button) return;
-      activeCategory = button.dataset.category;
-      host.querySelectorAll(".chip").forEach(chip => chip.classList.toggle("active", chip === button));
+    const host=$("categories"); host.innerHTML="";
+    const all=document.createElement("button");
+    all.type="button";all.className="topic-chip";all.dataset.category="all";all.textContent="All topics";all.setAttribute("aria-pressed","true");host.append(all);
+    categories.forEach(category=>{
+      const button=document.createElement("button");button.type="button";button.className="topic-chip";
+      button.dataset.category=category.slug;button.textContent=category.name;button.setAttribute("aria-pressed","false");host.append(button);
+    });
+    host.addEventListener("click",event=>{
+      const button=event.target.closest("button[data-category]");if(!button)return;
+      activeCategory=button.dataset.category;
+      host.querySelectorAll(".topic-chip").forEach(chip=>chip.setAttribute("aria-pressed",String(chip===button)));
       renderArticles();
     });
   }
   function renderArticles(){
-    const filtered = allArticles.filter(article => {
-      const categoryMatch = activeCategory === "all" || article.categories?.slug === activeCategory;
-      const haystack = (article.title+" "+article.summary+" "+(article.categories?.name||"")).toLowerCase();
-      return categoryMatch && haystack.includes(searchTerm);
+    const filtered=allArticles.filter(article=>{
+      const categoryMatch=activeCategory==="all"||article.categories?.slug===activeCategory;
+      const haystack=[article.title,article.summary,article.content,article.categories?.name].filter(Boolean).join(" ").toLocaleLowerCase();
+      return categoryMatch&&haystack.includes(searchTerm);
     });
-    const showChessSite = /\bchess\b/i.test(searchTerm);
-    $("count").textContent = filtered.length + (filtered.length === 1 ? " article" : " articles") + (showChessSite ? " · 1 website" : "");
-    $("resultsTitle").textContent = searchTerm ? "Search results" : activeCategory === "all" ? "Popular information" : "Explore "+activeCategory;
-    const host = $("articles"); host.innerHTML = "";
+    const showChessSite=/\bchess\b/i.test(searchTerm);
+    $("count").textContent=filtered.length+(filtered.length===1?" article":" articles")+(showChessSite?" · 1 extra website":"");
+    $("resultsTitle").textContent=searchTerm?"Search results":activeCategory==="all"?"Popular information":"Explore "+(allArticles.find(a=>a.categories?.slug===activeCategory)?.categories?.name||"topic");
+    const host=$("articles");host.innerHTML="";host.setAttribute("aria-busy","false");
     if(showChessSite){
-      const result = document.createElement("article"); result.className = "external-result";
-      const domain = document.createElement("div"); domain.className = "domain"; domain.textContent = "https://themaxchessss.github.io";
-      const link = document.createElement("a"); link.href = "https://themaxchessss.github.io/"; link.target = "_blank"; link.rel = "noopener noreferrer";
-      const title = document.createElement("h3"); title.textContent = "TheMaxChess";
-      const description = document.createElement("p"); description.textContent = "Visit TheMaxChess website.";
-      link.append(title,description); result.append(domain,link); host.append(result);
+      const result=document.createElement("article");result.className="external-result";
+      const domain=document.createElement("div");domain.className="domain";domain.textContent="Recommended website";
+      const link=document.createElement("a");link.href="https://themaxchessss.github.io/";link.target="_blank";link.rel="noopener noreferrer";
+      const title=document.createElement("h3");title.textContent="TheMaxChess ↗";
+      const description=document.createElement("p");description.textContent="Visit TheMaxChess for chess-related content.";
+      link.append(title,description);result.append(domain,link);host.append(result);
     }
-    if(!filtered.length && !showChessSite){host.innerHTML = '<div class="empty">No results found. Try another search.</div>';return;}
-    filtered.forEach(article => {
-      const card = document.createElement("article"); card.className = "article";
-      const tag = document.createElement("div"); tag.className = "tag"; tag.textContent = article.categories?.name || "Article";
-      const title = document.createElement("h3"); title.textContent = article.title;
-      const summary = document.createElement("p"); summary.textContent = article.summary;
-      const read = document.createElement("button"); read.textContent = "Read article →"; read.addEventListener("click", () => openArticle(article));
-      card.append(tag,title,summary,read); host.append(card);
+    if(!filtered.length&&!showChessSite){
+      const empty=document.createElement("div");empty.className="empty";
+      const title=document.createElement("h3");title.textContent=searchTerm?"No matching articles yet":"No articles in this topic yet";
+      const message=document.createElement("p");message.textContent=searchTerm?"Try a different word or choose another topic.":"Choose another topic to keep exploring.";
+      empty.append(title,message);host.append(empty);return;
+    }
+    filtered.forEach(article=>{
+      const card=document.createElement("article");card.className="article";
+      const tag=document.createElement("span");tag.className="article-tag";tag.textContent=article.categories?.name||"Article";
+      const title=document.createElement("h3");title.textContent=article.title;
+      const summary=document.createElement("p");summary.textContent=article.summary||"Open this article to explore the topic.";
+      const footer=document.createElement("div");footer.className="article-footer";
+      const time=document.createElement("span");time.className="read-time";time.textContent=(article.read_minutes||3)+" min read";
+      const read=document.createElement("button");read.type="button";read.className="read-button";read.textContent="Read article →";read.addEventListener("click",()=>openArticle(article));
+      footer.append(time,read);card.append(tag,title,summary,footer);host.append(card);
     });
   }
   function openArticle(article){
-    $("modalCategory").textContent = article.categories?.name || "InformationBank";
-    $("modalTitle").textContent = article.title; $("modalMeta").textContent = (article.read_minutes || 3) + " min read";
-    $("modalContent").textContent = article.content; $("articleDialog").showModal();
+    $("modalCategory").textContent=article.categories?.name||"InformationBank";
+    $("modalTitle").textContent=article.title;
+    $("modalMeta").textContent=(article.read_minutes||3)+" min read";
+    $("modalContent").textContent=article.content||article.summary||"No article text is available yet.";
+    $("articleDialog").showModal();
   }
-  $("closeDialog").addEventListener("click", () => $("articleDialog").close());
-  $("articleDialog").addEventListener("click", event => {if(event.target === $("articleDialog")) $("articleDialog").close();});
-  $("searchForm").addEventListener("submit", event => {
-    event.preventDefault();
-    searchTerm = $("searchInput").value.trim().toLowerCase();
+  function updateSearch(value){
+    searchTerm=value.trim().toLocaleLowerCase();
     renderArticles();
-    $("resultsTitle").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  $("closeDialog").addEventListener("click",()=>$("articleDialog").close());
+  $("articleDialog").addEventListener("click",event=>{if(event.target===$("articleDialog"))$("articleDialog").close();});
+  $("searchForm").addEventListener("submit",event=>{
+    event.preventDefault();updateSearch($("searchInput").value);
+    $("results").scrollIntoView({behavior:"smooth",block:"start"});
   });
-  $("searchInput").addEventListener("input", () => {
-    searchTerm=$("searchInput").value.trim().toLowerCase();
-    renderArticles();
+  $("searchInput").addEventListener("input",()=>updateSearch($("searchInput").value));
+  $("quickTopics").addEventListener("click",event=>{
+    const button=event.target.closest("button[data-quick]");if(!button)return;
+    const category=button.dataset.quick;
+    const match=Array.from($("categories").querySelectorAll("button")).find(b=>b.textContent.toLowerCase()===category.toLowerCase());
+    if(match)match.click();else{$("searchInput").value=category;updateSearch(category);}
+    $("topics").scrollIntoView({behavior:"smooth",block:"start"});
   });
   async function start(){
     try{
-      const [categories, articles] = await Promise.all([
+      const [categories,articles]=await Promise.all([
         api("categories?select=id,name,slug,description,sort_order&order=sort_order.asc"),
         api("articles?select=id,title,slug,summary,content,read_minutes,published_at,categories(name,slug)&status=eq.published&order=published_at.desc")
       ]);
-      allArticles = articles; renderCategories(categories); renderArticles();
+      allArticles=articles;renderCategories(categories);renderArticles();
     }catch(error){
-      $("articles").innerHTML = '<div class="empty">The library could not load. Check the Supabase project URL, publishable key, and database policies in README.md.</div>';
+      $("count").textContent="Library unavailable";
+      $("articles").setAttribute("aria-busy","false");
+      $("articles").innerHTML='<div class="empty"><h3>We could not load the library</h3><p>Please refresh the page in a moment. If the problem continues, the site administrator can check the Supabase connection and access policies.</p></div>';
       console.error(error);
     }
   }
