@@ -11,7 +11,8 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: true
+  # Queue deployments instead of cancelling an in-progress publish.
+  cancel-in-progress: false
 
 jobs:
   build:
