@@ -495,6 +495,7 @@
   });
   $("searchForm").addEventListener("submit",async event=>{
     event.preventDefault();
+    savedOnly=false;updateSavedUI();
     updateSearch($("searchInput").value);
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
     if(searchTerm&&lastFilteredCount===0)await generateArticleForSearch($("searchInput").value.trim());
@@ -502,7 +503,7 @@
   $("searchInput").addEventListener("input",()=>{savedOnly=false;updateSavedUI();updateSearch($("searchInput").value);});
   $("sortSelect").addEventListener("change",event=>{sortMode=event.target.value;renderArticles();});
   $("savedButton").addEventListener("click",()=>{savedOnly=!savedOnly;updateSavedUI();renderArticles();$("results").scrollIntoView({behavior:"smooth",block:"start"});});
-  $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();$("searchInput").focus();});
+  $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";savedOnly=false;updateSavedUI();const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();$("searchInput").focus();});
   $("surpriseButton").addEventListener("click",()=>{if(!allArticles.length)return;const article=allArticles[Math.floor(Math.random()*allArticles.length)];activeCategory="all";searchTerm="";$("searchInput").value="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();openArticle(article);});
   $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});if(lastFilteredCount===0)generateArticleForSearch(button.dataset.discover);});
   $("quickTopics").addEventListener("click",event=>{
