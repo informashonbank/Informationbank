@@ -58,7 +58,7 @@
     .discovery-topics{display:flex;flex-wrap:wrap;gap:8px}
     .discovery-topic{border:1px solid var(--line);background:white;border-radius:999px;padding:7px 11px;color:#465775;font-size:.82rem;font-weight:700}
     .discovery-topic:hover{border-color:#b9c9f7;color:var(--blue);background:var(--pale)}
-    .results-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .results-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.tool-button[aria-pressed="true"]{background:var(--pale);border-color:#b9c9f7;color:var(--blue-dark)}.save-button{border:1px solid var(--line);background:white;border-radius:9px;padding:6px 9px;color:#53627b;font-size:.8rem;font-weight:800}.save-button[aria-pressed="true"]{background:#fff8e6;border-color:#f0d48b;color:#815b00}.article-tools{display:flex;align-items:center;gap:10px}
     .tool-select,.tool-button{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 10px;color:#465775;font-size:.84rem;font-weight:700}
     .tool-button:hover,.tool-select:focus{border-color:#b9c9f7;color:var(--blue)}
     .main{padding:55px 0 78px}
@@ -145,7 +145,8 @@
     <p class="hero-copy">A place to discover useful information, follow your curiosity, and learn something new every day.</p>
     <form class="search" id="searchForm" role="search">
       <svg class="search-icon" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-      <input id="searchInput" type="search" placeholder="Search articles and ideas…" aria-label="Search InformationBank">
+      <input id="searchInput" type="search" list="searchSuggestions" placeholder="Search articles, subjects, and ideas…" aria-label="Search InformationBank" autocomplete="off">
+      <datalist id="searchSuggestions"></datalist>
       <button class="search-submit" type="submit">Search</button>
     </form>
     <p class="search-hint">Search the InformationBank library by title, topic, summary, or article text.</p>
@@ -209,7 +210,7 @@
   <section class="results-top" id="results" aria-labelledby="resultsTitle">
     <div class="section-heading">
       <div><div class="eyebrow">Keep discovering</div><h2 id="resultsTitle">Popular information</h2></div>
-      <div class="results-tools"><span class="result-count" id="count" aria-live="polite">Loading articles…</span><select class="tool-select" id="sortSelect" aria-label="Sort articles"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option><option value="short">Shortest read</option></select><button class="tool-button" id="surpriseButton" type="button">Surprise me ✦</button><button class="tool-button" id="clearButton" type="button">Clear search</button></div>
+      <div class="results-tools"><span class="result-count" id="count" aria-live="polite">Loading articles…</span><select class="tool-select" id="sortSelect" aria-label="Sort articles"><option value="relevance">Most relevant</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option><option value="short">Shortest read</option></select><button class="tool-button" id="savedButton" type="button" aria-pressed="false">Saved articles <span id="savedCount">0</span></button><button class="tool-button" id="surpriseButton" type="button">Surprise me ✦</button><button class="tool-button" id="clearButton" type="button">Clear search</button></div>
     </div>
     <div class="article-grid" id="articles" aria-live="polite" aria-busy="true">
       <div class="empty"><h3>Getting the library ready…</h3><p>Just a moment while the latest articles load.</p></div>
@@ -259,7 +260,13 @@
   const authClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   let authMode = "signin";
   let allArticles = [], activeCategory = "all", searchTerm = "", lastFilteredCount = 0, generatingArticle = false;
-  let sortMode = "newest";
+  let sortMode = "relevance", savedOnly = false;
+  const SAVED_KEY = "informationbank-saved-articles-v1";
+  function readSavedIds(){try{return new Set(JSON.parse(localStorage.getItem(SAVED_KEY)||"[]").map(String));}catch(_error){return new Set();}}
+  let savedIds = readSavedIds();
+  function saveSavedIds(){try{localStorage.setItem(SAVED_KEY,JSON.stringify([...savedIds]));}catch(_error){}}
+  function updateSavedUI(){$("savedCount").textContent=String(savedIds.size);$("savedButton").setAttribute("aria-pressed",String(savedOnly));}
+  function toggleSaved(article){const id=String(article.id);if(savedIds.has(id))savedIds.delete(id);else savedIds.add(id);saveSavedIds();updateSavedUI();renderArticles();}
   const $ = id => document.getElementById(id);
   $("year").textContent = new Date().getFullYear();
   function setAuthStatus(message,isError=false){$("authStatus").textContent=message;$("authStatus").classList.toggle("error",isError);}
@@ -339,16 +346,41 @@
       renderArticles();
     });
   }
+  function articleScore(article,terms){
+    if(!terms.length)return 0;
+    const title=(article.title||"").toLocaleLowerCase(),summary=(article.summary||"").toLocaleLowerCase();
+    const category=(article.categories?.name||"").toLocaleLowerCase(),content=(article.content||"").toLocaleLowerCase();
+    let score=0;
+    for(const term of terms){
+      if(title.includes(term))score+=title===term?30:12;
+      if(summary.includes(term))score+=5;
+      if(category.includes(term))score+=7;
+      if(content.includes(term))score+=1;
+    }
+    const phrase=terms.join(" ");
+    if(phrase.length>2&&title.includes(phrase))score+=18;
+    if(phrase.length>2&&summary.includes(phrase))score+=8;
+    return score;
+  }
   function renderArticles(){
+    const terms=searchTerm.split(/\s+/).filter(Boolean);
     const filtered=allArticles.filter(article=>{
       const categoryMatch=activeCategory==="all"||article.categories?.slug===activeCategory;
+      const savedMatch=!savedOnly||savedIds.has(String(article.id));
       const haystack=[article.title,article.summary,article.content,article.categories?.name].filter(Boolean).join(" ").toLocaleLowerCase();
-      return categoryMatch&&haystack.includes(searchTerm);
+      const textMatch=!terms.length||terms.every(term=>haystack.includes(term));
+      return categoryMatch&&savedMatch&&textMatch;
+    }).sort((a,b)=>{
+      if(sortMode==="title")return (a.title||"").localeCompare(b.title||"");
+      if(sortMode==="short")return (a.read_minutes||3)-(b.read_minutes||3);
+      if(sortMode==="oldest")return new Date(a.published_at||0)-new Date(b.published_at||0);
+      if(sortMode==="relevance"&&terms.length)return articleScore(b,terms)-articleScore(a,terms);
+      return new Date(b.published_at||0)-new Date(a.published_at||0);
     });
     lastFilteredCount=filtered.length;
     const showChessSite=/\bchess\b/i.test(searchTerm);
     $("count").textContent=filtered.length+(filtered.length===1?" article":" articles")+(showChessSite?" · 1 extra website":"");
-    $("resultsTitle").textContent=searchTerm?"Search results":activeCategory==="all"?"Popular information":"Explore "+(allArticles.find(a=>a.categories?.slug===activeCategory)?.categories?.name||"topic");
+    $("resultsTitle").textContent=savedOnly?"Your saved articles":searchTerm?"Search results":activeCategory==="all"?"Popular information":"Explore "+(allArticles.find(a=>a.categories?.slug===activeCategory)?.categories?.name||"topic");
     const host=$("articles");host.innerHTML="";host.setAttribute("aria-busy","false");
     if(showChessSite){
       const result=document.createElement("article");result.className="external-result";
@@ -361,7 +393,7 @@
     if(!filtered.length&&!showChessSite){
       const empty=document.createElement("div");empty.className="empty";
       const title=document.createElement("h3");title.textContent=searchTerm?"No matching articles yet":"No articles in this topic yet";
-      const message=document.createElement("p");message.textContent=searchTerm?"Try a different word or choose another topic.":"Choose another topic to keep exploring.";
+      const message=document.createElement("p");message.textContent=savedOnly?"Save an article with the bookmark button and it will appear here on this browser.":searchTerm?"Try a different word or choose another topic.":"Choose another topic to keep exploring.";
       empty.append(title,message);host.append(empty);return;
     }
     filtered.forEach(article=>{
@@ -372,7 +404,9 @@
       const footer=document.createElement("div");footer.className="article-footer";
       const time=document.createElement("span");time.className="read-time";time.textContent=(article.read_minutes||3)+" min read";
       const read=document.createElement("button");read.type="button";read.className="read-button";read.textContent="Read article →";read.addEventListener("click",()=>openArticle(article));
-      footer.append(time,read);card.append(tag,title,summary,footer);host.append(card);
+      const save=document.createElement("button");save.type="button";save.className="save-button";save.textContent=savedIds.has(String(article.id))?"★ Saved":"☆ Save";save.setAttribute("aria-pressed",String(savedIds.has(String(article.id))));save.setAttribute("aria-label",(savedIds.has(String(article.id))?"Remove ":"Save ")+article.title);save.addEventListener("click",()=>toggleSaved(article));
+      const tools=document.createElement("div");tools.className="article-tools";tools.append(save,read);
+      footer.append(time,tools);card.append(tag,title,summary,footer);host.append(card);
     });
   }
   function renderArticleContent(rawContent){
@@ -465,8 +499,9 @@
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
     if(searchTerm&&lastFilteredCount===0)await generateArticleForSearch($("searchInput").value.trim());
   });
-  $("searchInput").addEventListener("input",()=>updateSearch($("searchInput").value));
+  $("searchInput").addEventListener("input",()=>{savedOnly=false;updateSavedUI();updateSearch($("searchInput").value);});
   $("sortSelect").addEventListener("change",event=>{sortMode=event.target.value;renderArticles();});
+  $("savedButton").addEventListener("click",()=>{savedOnly=!savedOnly;updateSavedUI();renderArticles();$("results").scrollIntoView({behavior:"smooth",block:"start"});});
   $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();$("searchInput").focus();});
   $("surpriseButton").addEventListener("click",()=>{if(!allArticles.length)return;const article=allArticles[Math.floor(Math.random()*allArticles.length)];activeCategory="all";searchTerm="";$("searchInput").value="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();openArticle(article);});
   $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});if(lastFilteredCount===0)generateArticleForSearch(button.dataset.discover);});
@@ -477,13 +512,18 @@
     if(match)match.click();else{$("searchInput").value=category;updateSearch(category);}
     $("topics").scrollIntoView({behavior:"smooth",block:"start"});
   });
+  function renderSuggestions(){
+    const suggestions=new Set();
+    allArticles.forEach(article=>{if(article.title)suggestions.add(article.title);if(article.categories?.name)suggestions.add(article.categories.name);});
+    $("searchSuggestions").replaceChildren(...[...suggestions].slice(0,80).map(value=>{const option=document.createElement("option");option.value=value;return option;}));
+  }
   async function start(){
     try{
       const [categories,articles]=await Promise.all([
         api("categories?select=id,name,slug,description,sort_order&order=sort_order.asc"),
         api("articles?select=id,title,slug,summary,content,read_minutes,published_at,categories(name,slug)&status=eq.published&order=published_at.desc")
       ]);
-      allArticles=articles;renderCategories(categories);renderArticles();
+      allArticles=articles;renderCategories(categories);renderSuggestions();updateSavedUI();renderArticles();
     }catch(error){
       $("count").textContent="Library unavailable";
       $("articles").setAttribute("aria-busy","false");
