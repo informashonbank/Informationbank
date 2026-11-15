@@ -30,6 +30,7 @@
     .nav-link:hover{background:var(--pale);color:var(--blue-dark)}
     .nav-cta{background:var(--blue);color:white}
     .nav-cta:hover{background:var(--blue-dark);color:white}
+    .auth-dialog{width:min(440px,calc(100% - 28px))}.auth-form{display:grid;gap:12px;margin-top:18px}.auth-form label{display:grid;gap:5px;color:#465775;font-size:.86rem;font-weight:750}.auth-form input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:white;color:var(--ink)}.auth-actions{display:flex;gap:9px;flex-wrap:wrap}.auth-primary{border:0;border-radius:10px;background:var(--blue);color:white;padding:11px 16px;font-weight:800}.auth-secondary{border:1px solid var(--line);border-radius:10px;background:white;color:#465775;padding:11px 14px;font-weight:750}.auth-status{min-height:1.4em;color:var(--muted);font-size:.88rem}.auth-status.error{color:#b42318}.account-label{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .hero{position:relative;overflow:hidden;padding:76px 0 66px;background:radial-gradient(ellipse at 50% 0%,#e8efff 0%,#f9fbff 48%,#f6f8fd 100%);text-align:center}
     .hero:before,.hero:after{content:"";position:absolute;border:1px solid #dbe5ff;border-radius:50%;pointer-events:none}
     .hero:before{width:430px;height:430px;left:-290px;top:20px}
@@ -131,6 +132,7 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a class="nav-link" href="#topics">Topics</a>
       <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <button class="nav-link" id="authOpen" type="button">Sign in</button>
       <a class="nav-link nav-cta" href="business-cards.html">Business cards ↗</a>
     </nav>
   </div>
@@ -227,20 +229,77 @@
     </div>
   </div>
 </footer>
+<dialog id="authDialog" class="auth-dialog" aria-labelledby="authTitle">
+  <section class="modal">
+    <div class="modal-top"><span class="eyebrow">Your InformationBank account</span><button class="close" id="authClose" type="button">Close ✕</button></div>
+    <h2 id="authTitle">Sign in</h2>
+    <p class="section-note" id="authIntro">Sign in or create an account with your email address.</p>
+    <form class="auth-form" id="authForm">
+      <label>Email address<input id="authEmail" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
+      <label>Password<input id="authPassword" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters"></label>
+      <div class="auth-actions"><button class="auth-primary" id="authSubmit" type="submit">Sign in</button><button class="auth-secondary" id="authToggle" type="button">Create account</button></div>
+      <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</dialog>
 <dialog id="articleDialog" aria-labelledby="modalTitle">
   <article class="modal">
     <div class="modal-top"><span class="eyebrow" id="modalCategory">InformationBank</span><button class="close" id="closeDialog" type="button">Close ✕</button></div>
     <h2 id="modalTitle"></h2><div class="modal-meta" id="modalMeta"></div><div class="modal-content" id="modalContent"></div>
   </article>
 </dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://uiwzpapmsxqmvolknafk.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BznsuKCxYP9wHUPe6_jp8g_fU6wSKlw";
   const headers = {"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY};
+  const authClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  let authMode = "signin";
   let allArticles = [], activeCategory = "all", searchTerm = "", lastFilteredCount = 0, generatingArticle = false;
   let sortMode = "newest";
   const $ = id => document.getElementById(id);
   $("year").textContent = new Date().getFullYear();
+  function setAuthStatus(message,isError=false){$("authStatus").textContent=message;$("authStatus").classList.toggle("error",isError);}
+  function updateAuthUI(user){
+    const button=$("authOpen");
+    if(user){button.textContent="Sign out";button.classList.add("account-label");button.title=user.email||"Signed in";}
+    else{button.textContent="Sign in";button.classList.remove("account-label");button.removeAttribute("title");}
+  }
+  function showAuthMode(mode){
+    authMode=mode;
+    $("authTitle").textContent=mode==="signin"?"Sign in":"Create your account";
+    $("authSubmit").textContent=mode==="signin"?"Sign in":"Create account";
+    $("authToggle").textContent=mode==="signin"?"Create account":"Back to sign in";
+    $("authPassword").autocomplete=mode==="signin"?"current-password":"new-password";
+    $("authIntro").textContent=mode==="signin"?"Sign in to your InformationBank account.":"Create an account with your email and a password of at least 8 characters.";
+    setAuthStatus("");
+  }
+  $("authOpen").addEventListener("click",async()=>{
+    const {data}=await authClient.auth.getSession();
+    if(data.session){const {error}=await authClient.auth.signOut();setAuthStatus(error?error.message:"You have signed out.");updateAuthUI(null);return;}
+    showAuthMode("signin");$("authDialog").showModal();
+  });
+  $("authClose").addEventListener("click",()=>$("authDialog").close());
+  $("authToggle").addEventListener("click",()=>showAuthMode(authMode==="signin"?"signup":"signin"));
+  $("authForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const email=$("authEmail").value.trim(),password=$("authPassword").value;
+    $("authSubmit").disabled=true;setAuthStatus(authMode==="signin"?"Signing in…":"Creating your account…");
+    try{
+      const result=authMode==="signin"
+        ? await authClient.auth.signInWithPassword({email,password})
+        : await authClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+window.location.pathname}});
+      if(result.error)throw result.error;
+      if(authMode==="signup"&&!result.data.session){
+        setAuthStatus("Check your email for a confirmation link, then return here to sign in.");
+      }else{
+        updateAuthUI(result.data.user);setAuthStatus("You're signed in.");$("authDialog").close();
+      }
+    }catch(error){setAuthStatus(error.message||"Authentication failed. Please try again.",true);}
+    finally{$("authSubmit").disabled=false;}
+  });
+  authClient.auth.getSession().then(({data})=>updateAuthUI(data.session?.user||null));
+  authClient.auth.onAuthStateChange((_event,session)=>updateAuthUI(session?.user||null));
 
   async function api(path){
     const response = await fetch(SUPABASE_URL + "/rest/v1/" + path,{headers});
