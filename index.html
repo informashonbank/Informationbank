@@ -41,16 +41,16 @@
 <section class="hero"><div class="wrap">
   <div class="search-logo" aria-label="InformationBank question mark logo">?</div>
   <h1>InformationBank</h1>
-  <p>Search the web with Google. Enter a question, topic, or website below.</p>
-  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search Google or type a URL…" aria-label="Search the web and InformationBank"><button class="primary">Search</button></form>
+  <p>Find answers and explore topics in the InformationBank library.</p>
+  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search InformationBank…" aria-label="Search the web and InformationBank"><button class="primary">Search</button></form>
 </div></section>
 <main class="wrap">
   <div class="section-head"><div><div class="eyebrow">Browse topics</div><h2>Explore categories</h2></div><span class="muted" id="count"></span></div>
   <div class="categories" id="categories"><button class="chip active" data-category="all">All topics</button></div>
-  <div class="section-head"><h2 id="resultsTitle">Popular information</h2><span class="muted">Search the entire web</span></div>
+  <div class="section-head"><h2 id="resultsTitle">Popular information</h2><span class="muted">Search the InformationBank library</span></div>
   <section class="grid" id="articles" aria-live="polite"><div class="empty">Loading the library…</div></section>
 </main>
-<footer><div class="wrap">© <span id="year"></span> InformationBank. Keep asking questions.</div></footer>
+<footer><div class="wrap">© <span id="year"></span> InformationBank — Find it. Understand it. Keep asking questions.</div></footer>
 <dialog id="articleDialog"><div class="modal"><button class="close" id="closeDialog" aria-label="Close">Close</button><div class="eyebrow" id="modalCategory"></div><h2 id="modalTitle"></h2><div class="muted" id="modalMeta"></div><p id="modalContent"></p></div></dialog>
 <script>
   const SUPABASE_URL = "https://uiwzpapmsxqmvolknafk.supabase.co";
@@ -112,9 +112,9 @@
   $("articleDialog").addEventListener("click", event => {if(event.target === $("articleDialog")) $("articleDialog").close();});
   $("searchForm").addEventListener("submit", event => {
     event.preventDefault();
-    const query = $("searchInput").value.trim();
-    if(!query) return;
-    window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(query);
+    searchTerm = $("searchInput").value.trim().toLowerCase();
+    renderArticles();
+    $("resultsTitle").scrollIntoView({behavior:"smooth",block:"center"});
   });
   $("searchInput").addEventListener("input", () => {
     searchTerm=$("searchInput").value.trim().toLowerCase();
