@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="InformationBank — a curious place to explore science, technology, history, nature, space, and geography.">
+  <title>InformationBank — Explore what matters</title>
+  <style>
+    :root{--ink:#17233b;--muted:#64748b;--paper:#f7f8fc;--card:#fff;--blue:#3157d5;--line:#e6eaf2}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:inherit;text-decoration:none}.wrap{width:min(1100px,calc(100% - 40px));margin:auto}
+    header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+    .nav{height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{font-size:1.22rem;font-weight:850;letter-spacing:-.04em}.brand span{color:var(--blue)}
+    .nav small{color:var(--muted)}
+    .hero{padding:76px 0 56px;background:radial-gradient(ellipse at 80% 10%,#e3eaff 0,transparent 38%),linear-gradient(135deg,#fff,#f2f5ff)}
+    .eyebrow{color:var(--blue);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
+    h1{font-size:clamp(2.5rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.065em;max-width:760px;margin:15px 0}
+    .hero p{color:var(--muted);max-width:620px;font-size:1.1rem}
+    .search{display:flex;gap:10px;max-width:650px;margin-top:28px}.search input{flex:1;min-width:0;padding:15px 17px;border:1px solid #d8deea;border-radius:12px;font:inherit;background:white}
+    button{cursor:pointer;font:inherit}.primary{border:0;background:var(--blue);color:white;padding:14px 20px;border-radius:12px;font-weight:750}
+    main{padding:46px 0 80px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:18px}
+    h2{font-size:1.65rem;letter-spacing:-.04em;margin:0}.muted{color:var(--muted)}
+    .categories{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 36px}.chip{border:1px solid var(--line);background:white;color:#40506b;padding:9px 14px;border-radius:99px;font-weight:650}
+    .chip.active,.chip:hover{background:#eaf0ff;border-color:#cbd8ff;color:#2447bd}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .article{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;min-height:220px;display:flex;flex-direction:column;box-shadow:0 5px 18px #1b2b4a08}
+    .article .tag{font-size:.75rem;color:var(--blue);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .article h3{font-size:1.22rem;line-height:1.25;letter-spacing:-.03em;margin:12px 0 8px}
+    .article p{color:var(--muted);margin:0 0 20px}.article button{margin-top:auto;align-self:flex-start;background:none;border:0;padding:0;color:var(--blue);font-weight:800}
+    .empty{grid-column:1/-1;background:white;border:1px dashed #cbd5e1;padding:35px;border-radius:16px;text-align:center;color:var(--muted)}
+    footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:.9rem}
+    dialog{border:0;border-radius:20px;padding:0;width:min(680px,calc(100% - 28px));max-height:85vh;box-shadow:0 25px 90px #101b3380}
+    dialog::backdrop{background:#111c34a8}.modal{padding:30px}.modal h2{margin:8px 0 16px}.modal p{white-space:pre-wrap;color:#43516a}.close{float:right;border:1px solid var(--line);background:white;border-radius:9px;padding:7px 11px}
+    @media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:58px 0 44px}}
+    @media(max-width:560px){.grid{grid-template-columns:1fr}.search{flex-direction:column}.search .primary{width:100%}.section-head{align-items:start;flex-direction:column}.nav small{display:none}}
+  </style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="#">Information<span>Bank</span></a><small>Curiosity, organized.</small></div></header>
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">A little knowledge goes a long way</div>
+  <h1>Explore the world.<br>One idea at a time.</h1>
+  <p>Clear, approachable articles about the topics that shape our world — from the smallest parts of nature to the farthest reaches of space.</p>
+  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search articles and topics…" aria-label="Search articles"><button class="primary">Search</button></form>
+</div></section>
+<main class="wrap">
+  <div class="section-head"><div><div class="eyebrow">Browse the library</div><h2>Explore by category</h2></div><span class="muted" id="count"></span></div>
+  <div class="categories" id="categories"><button class="chip active" data-category="all">All topics</button></div>
+  <div class="section-head"><h2 id="resultsTitle">Latest discoveries</h2><span class="muted">Made for curious minds</span></div>
+  <section class="grid" id="articles" aria-live="polite"><div class="empty">Loading the library…</div></section>
+</main>
+<footer><div class="wrap">© <span id="year"></span> InformationBank. Keep asking questions.</div></footer>
+<dialog id="articleDialog"><div class="modal"><button class="close" id="closeDialog" aria-label="Close">Close</button><div class="eyebrow" id="modalCategory"></div><h2 id="modalTitle"></h2><div class="muted" id="modalMeta"></div><p id="modalContent"></p></div></dialog>
+<script>
+  const SUPABASE_URL = "https://uiwzpapmsxqmvolknafk.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BznsuKCxYP9wHUPe6_jp8g_fU6wSKlw";
+  const headers = {"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY};
+  let allArticles = [], activeCategory = "all", searchTerm = "";
+  const $ = id => document.getElementById(id);
+  $("year").textContent = new Date().getFullYear();
+  async function api(path){
+    const response = await fetch(SUPABASE_URL + "/rest/v1/" + path, {headers});
+    if(!response.ok) throw new Error("Library request failed ("+response.status+").");
+    return response.json();
+  }
+  function renderCategories(categories){
+    const host = $("categories"); host.innerHTML = "";
+    const all = document.createElement("button"); all.className = "chip active"; all.dataset.category = "all"; all.textContent = "All topics"; host.append(all);
+    categories.forEach(category => { const button = document.createElement("button"); button.className = "chip"; button.dataset.category = category.slug; button.textContent = category.name; host.append(button); });
+    host.addEventListener("click", event => {
+      const button = event.target.closest("button[data-category]"); if(!button) return;
+      activeCategory = button.dataset.category;
+      host.querySelectorAll(".chip").forEach(chip => chip.classList.toggle("active", chip === button));
+      renderArticles();
+    });
+  }
+  function renderArticles(){
+    const filtered = allArticles.filter(article => {
+      const categoryMatch = activeCategory === "all" || article.categories?.slug === activeCategory;
+      const haystack = (article.title+" "+article.summary+" "+(article.categories?.name||"")).toLowerCase();
+      return categoryMatch && haystack.includes(searchTerm);
+    });
+    $("count").textContent = filtered.length + (filtered.length === 1 ? " article" : " articles");
+    $("resultsTitle").textContent = searchTerm ? "Search results" : activeCategory === "all" ? "Latest discoveries" : "Explore "+activeCategory;
+    const host = $("articles"); host.innerHTML = "";
+    if(!filtered.length){host.innerHTML = '<div class="empty">No articles match that search yet. Try another topic.</div>';return;}
+    filtered.forEach(article => {
+      const card = document.createElement("article"); card.className = "article";
+      const tag = document.createElement("div"); tag.className = "tag"; tag.textContent = article.categories?.name || "Article";
+      const title = document.createElement("h3"); title.textContent = article.title;
+      const summary = document.createElement("p"); summary.textContent = article.summary;
+      const read = document.createElement("button"); read.textContent = "Read article →"; read.addEventListener("click", () => openArticle(article));
+      card.append(tag,title,summary,read); host.append(card);
+    });
+  }
+  function openArticle(article){
+    $("modalCategory").textContent = article.categories?.name || "InformationBank";
+    $("modalTitle").textContent = article.title; $("modalMeta").textContent = (article.read_minutes || 3) + " min read";
+    $("modalContent").textContent = article.content; $("articleDialog").showModal();
+  }
+  $("closeDialog").addEventListener("click", () => $("articleDialog").close());
+  $("articleDialog").addEventListener("click", event => {if(event.target === $("articleDialog")) $("articleDialog").close();});
+  $("searchForm").addEventListener("submit", event => {event.preventDefault();searchTerm=$("searchInput").value.trim().toLowerCase();renderArticles();});
+  $("searchInput").addEventListener("input", () => {searchTerm=$("searchInput").value.trim().toLowerCase();renderArticles();});
+  async function start(){
+    try{
+      const [categories, articles] = await Promise.all([
+        api("categories?select=id,name,slug,description,sort_order&order=sort_order.asc"),
+        api("articles?select=id,title,slug,summary,content,read_minutes,published_at,categories(name,slug)&status=eq.published&order=published_at.desc")
+      ]);
+      allArticles = articles; renderCategories(categories); renderArticles();
+    }catch(error){
+      $("articles").innerHTML = '<div class="empty">The library could not load. Check the Supabase project URL, publishable key, and database policies in README.md.</div>';
+      console.error(error);
+    }
+  }
+  start();
+</script>
+</body>
+</html>
