@@ -13,41 +13,41 @@
     .nav{height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px}
     .brand{font-size:1.22rem;font-weight:850;letter-spacing:-.04em}.brand span{color:var(--blue)}
     .nav small{color:var(--muted)}
-    .hero{padding:76px 0 56px;background:radial-gradient(ellipse at 80% 10%,#e3eaff 0,transparent 38%),linear-gradient(135deg,#fff,#f2f5ff)}
+    .hero{padding:90px 0 54px;background:linear-gradient(180deg,#fff,#f7f9ff);text-align:center}.hero .wrap{display:flex;flex-direction:column;align-items:center}.hero h1{font-size:clamp(2.8rem,7vw,4.5rem);margin:10px 0 14px;letter-spacing:-.07em}.hero p{margin:0 auto;max-width:580px}.hero .eyebrow{margin-bottom:8px}
     .eyebrow{color:var(--blue);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
     h1{font-size:clamp(2.5rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.065em;max-width:760px;margin:15px 0}
     .hero p{color:var(--muted);max-width:620px;font-size:1.1rem}
-    .search{display:flex;gap:10px;max-width:650px;margin-top:28px}.search input{flex:1;min-width:0;padding:15px 17px;border:1px solid #d8deea;border-radius:12px;font:inherit;background:white}
+    .search{display:flex;gap:10px;width:min(720px,100%);margin-top:30px;padding:7px;background:#fff;border:1px solid #d9dfeb;border-radius:999px;box-shadow:0 5px 24px #26395c12}.search:focus-within{border-color:#9aafea;box-shadow:0 5px 26px #3157d522}.search input{flex:1;min-width:0;padding:12px 18px;border:0;outline:0;border-radius:999px;font:inherit;background:transparent}.search .primary{border-radius:999px;padding:12px 24px}
     button{cursor:pointer;font:inherit}.primary{border:0;background:var(--blue);color:white;padding:14px 20px;border-radius:12px;font-weight:750}
     main{padding:46px 0 80px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:18px}
     h2{font-size:1.65rem;letter-spacing:-.04em;margin:0}.muted{color:var(--muted)}
     .categories{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 36px}.chip{border:1px solid var(--line);background:white;color:#40506b;padding:9px 14px;border-radius:99px;font-weight:650}
     .chip.active,.chip:hover{background:#eaf0ff;border-color:#cbd8ff;color:#2447bd}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-    .article{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;min-height:220px;display:flex;flex-direction:column;box-shadow:0 5px 18px #1b2b4a08}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;max-width:820px;margin:0 auto}.results-wrap{max-width:820px;margin:0 auto}.section-head{max-width:820px;margin-left:auto;margin-right:auto}
+    .article{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;min-height:0;display:flex;flex-direction:column;box-shadow:0 3px 14px #1b2b4a08}
     .article .tag{font-size:.75rem;color:var(--blue);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
     .article h3{font-size:1.22rem;line-height:1.25;letter-spacing:-.03em;margin:12px 0 8px}
-    .article p{color:var(--muted);margin:0 0 20px}.article button{margin-top:auto;align-self:flex-start;background:none;border:0;padding:0;color:var(--blue);font-weight:800}
+    .article p{color:var(--muted);margin:0 0 12px}.article button{margin-top:4px;align-self:flex-start;background:none;border:0;padding:0;color:var(--blue);font-weight:800}.external-result{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:0 3px 14px #1b2b4a08}.external-result .domain{font-size:.84rem;color:#64748b}.external-result h3{font-size:1.25rem;margin:6px 0;color:#2453c7}.external-result p{margin:0;color:#526078}.external-result a:hover h3{text-decoration:underline}
     .empty{grid-column:1/-1;background:white;border:1px dashed #cbd5e1;padding:35px;border-radius:16px;text-align:center;color:var(--muted)}
     footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:.9rem}
     dialog{border:0;border-radius:20px;padding:0;width:min(680px,calc(100% - 28px));max-height:85vh;box-shadow:0 25px 90px #101b3380}
     dialog::backdrop{background:#111c34a8}.modal{padding:30px}.modal h2{margin:8px 0 16px}.modal p{white-space:pre-wrap;color:#43516a}.close{float:right;border:1px solid var(--line);background:white;border-radius:9px;padding:7px 11px}
-    @media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:58px 0 44px}}
-    @media(max-width:560px){.grid{grid-template-columns:1fr}.search{flex-direction:column}.search .primary{width:100%}.section-head{align-items:start;flex-direction:column}.nav small{display:none}}
+    @media(max-width:800px){.hero{padding:62px 0 42px}}
+    @media(max-width:560px){.search{gap:4px;padding:5px}.search input{padding:11px 12px}.search .primary{padding:11px 16px}.section-head{align-items:start;flex-direction:column}.nav small{display:none}}
   </style>
 </head>
 <body>
 <header><div class="wrap nav"><a class="brand" href="#">Information<span>Bank</span></a><small>Curiosity, organized.</small></div></header>
 <section class="hero"><div class="wrap">
-  <div class="eyebrow">A little knowledge goes a long way</div>
-  <h1>Explore the world.<br>One idea at a time.</h1>
-  <p>Clear, approachable articles about the topics that shape our world — from the smallest parts of nature to the farthest reaches of space.</p>
-  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search articles and topics…" aria-label="Search articles"><button class="primary">Search</button></form>
+  <div class="eyebrow">InformationBank search</div>
+  <h1>Search <span style="color:var(--blue)">everything.</span></h1>
+  <p>Find useful websites and explore articles from the InformationBank library.</p>
+  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="Search the web and InformationBank…" aria-label="Search the web and InformationBank"><button class="primary">Search</button></form>
 </div></section>
 <main class="wrap">
-  <div class="section-head"><div><div class="eyebrow">Browse the library</div><h2>Explore by category</h2></div><span class="muted" id="count"></span></div>
+  <div class="section-head"><div><div class="eyebrow">Browse topics</div><h2>Explore categories</h2></div><span class="muted" id="count"></span></div>
   <div class="categories" id="categories"><button class="chip active" data-category="all">All topics</button></div>
-  <div class="section-head"><h2 id="resultsTitle">Latest discoveries</h2><span class="muted">Made for curious minds</span></div>
+  <div class="section-head"><h2 id="resultsTitle">Popular information</h2><span class="muted">Web links and library articles</span></div>
   <section class="grid" id="articles" aria-live="polite"><div class="empty">Loading the library…</div></section>
 </main>
 <footer><div class="wrap">© <span id="year"></span> InformationBank. Keep asking questions.</div></footer>
@@ -81,10 +81,19 @@
       const haystack = (article.title+" "+article.summary+" "+(article.categories?.name||"")).toLowerCase();
       return categoryMatch && haystack.includes(searchTerm);
     });
-    $("count").textContent = filtered.length + (filtered.length === 1 ? " article" : " articles");
-    $("resultsTitle").textContent = searchTerm ? "Search results" : activeCategory === "all" ? "Latest discoveries" : "Explore "+activeCategory;
+    const showChessSite = /\\bchess\\b/i.test(searchTerm);
+    $("count").textContent = filtered.length + (filtered.length === 1 ? " article" : " articles") + (showChessSite ? " · 1 website" : "");
+    $("resultsTitle").textContent = searchTerm ? "Search results" : activeCategory === "all" ? "Popular information" : "Explore "+activeCategory;
     const host = $("articles"); host.innerHTML = "";
-    if(!filtered.length){host.innerHTML = '<div class="empty">No articles match that search yet. Try another topic.</div>';return;}
+    if(showChessSite){
+      const result = document.createElement("article"); result.className = "external-result";
+      const domain = document.createElement("div"); domain.className = "domain"; domain.textContent = "https://themaxchessss.github.io";
+      const link = document.createElement("a"); link.href = "https://themaxchessss.github.io/"; link.target = "_blank"; link.rel = "noopener noreferrer";
+      const title = document.createElement("h3"); title.textContent = "TheMaxChess";
+      const description = document.createElement("p"); description.textContent = "Visit TheMaxChess website.";
+      link.append(title,description); result.append(domain,link); host.append(result);
+    }
+    if(!filtered.length && !showChessSite){host.innerHTML = '<div class="empty">No results found. Try another search.</div>';return;}
     filtered.forEach(article => {
       const card = document.createElement("article"); card.className = "article";
       const tag = document.createElement("div"); tag.className = "tag"; tag.textContent = article.categories?.name || "Article";
