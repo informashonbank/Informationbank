@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f8fd"><meta name="description" content="InformationBank publishing activity and website health dashboard.">
+<link rel="canonical" href="https://informashonbank.github.io/Informationbank/dashboard.html">
+<title>InformationBank Dashboard</title>
+<style>
+:root{color-scheme:light;--ink:#17233b;--muted:#65738c;--paper:#f6f8fd;--surface:#fff;--blue:#3157d5;--pale:#eaf0ff;--line:#e3e9f3;--green:#168653;--red:#c13e48;--amber:#9b6a10}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}.wrap{width:min(1080px,calc(100% - 36px));margin:auto}
+header{background:#ffffffed;border-bottom:1px solid var(--line)}.nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.04em}.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--pale);color:var(--blue);font-size:27px;font-weight:950}.links{display:flex;gap:16px;color:#465775;font-weight:750;font-size:.9rem}.links a:hover{color:var(--blue)}
+main{padding:42px 0 70px}.eyebrow{color:var(--blue);font-size:.73rem;font-weight:900;text-transform:uppercase;letter-spacing:.14em}h1{margin:6px 0;font-size:clamp(2rem,5vw,3.1rem);line-height:1.08;letter-spacing:-.065em}.intro{margin:0;color:var(--muted)}.topline{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:25px}.refresh{border:0;border-radius:999px;background:var(--blue);color:white;padding:11px 17px;font-weight:800;cursor:pointer}.refresh:hover{background:#2445b7}.refresh:disabled{opacity:.55;cursor:wait}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}.card{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:19px;box-shadow:0 10px 28px #1d31520a}.metric-label{color:var(--muted);font-size:.84rem;font-weight:700}.metric{margin-top:6px;font-size:2rem;font-weight:900;letter-spacing:-.06em;font-variant-numeric:tabular-nums}.metric-sub{color:var(--muted);font-size:.78rem;margin-top:2px}
+.status{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:#f1f3f7;color:#526079;font-size:.82rem;font-weight:850}.dot{width:8px;height:8px;border-radius:50%;background:#8792a5}.good{background:#e8f7ef;color:var(--green)}.good .dot{background:var(--green)}.bad{background:#fff0f0;color:var(--red)}.bad .dot{background:var(--red)}.warn{background:#fff7e8;color:var(--amber)}.warn .dot{background:#d69a27}
+.panels{display:grid;grid-template-columns:1.5fr 1fr;gap:15px}.panel-title{margin:0 0 3px;font-size:1.05rem;letter-spacing:-.02em}.panel-note{margin:0 0 18px;color:var(--muted);font-size:.82rem}
+.chart{height:210px;display:flex;align-items:end;gap:8px;padding:8px 2px 0;border-bottom:1px solid var(--line)}.bar-wrap{height:100%;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:7px}.bar{width:min(100%,26px);min-height:3px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#7390f2,#3157d5);position:relative}.bar-value{font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums}.bar-label{font-size:.68rem;color:var(--muted);white-space:nowrap}
+.category-list{display:grid;gap:13px}.cat-row{display:grid;gap:5px}.cat-head{display:flex;justify-content:space-between;gap:10px;font-size:.84rem}.cat-name{font-weight:750}.cat-count{color:var(--muted);font-variant-numeric:tabular-nums}.track{height:8px;border-radius:99px;background:#edf1f8;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.health-item{padding:13px;border:1px solid var(--line);border-radius:12px}.health-item strong{display:block;font-size:.86rem}.health-item span{color:var(--muted);font-size:.78rem}.health-details{margin:14px 0 0;color:var(--muted);font-size:.83rem}.timestamp{color:var(--muted);font-size:.78rem;margin-top:8px}
+.error{color:var(--red)}footer{border-top:1px solid var(--line);padding:23px 0;color:var(--muted);font-size:.84rem}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.panels{grid-template-columns:1fr}.topline{align-items:flex-start;flex-direction:column}.health-grid{grid-template-columns:1fr}}@media(max-width:440px){.links{gap:9px;font-size:.8rem}.grid{gap:9px}.card{padding:15px}.metric{font-size:1.7rem}.chart{gap:4px}.bar-label{font-size:.6rem}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="index.html"><span class="mark">?</span><span>InformationBank</span></a><nav class="links"><a href="index.html">Home</a><a href="business-cards.html">Business cards</a></nav></div></header>
+<main class="wrap">
+<div class="topline"><div><div class="eyebrow">Site overview</div><h1>InformationBank dashboard</h1><p class="intro">Publishing activity, article growth, and automated website health checks.</p></div><button class="refresh" id="refresh" type="button">↻ Refresh dashboard</button></div>
+<div class="grid">
+<section class="card"><div class="metric-label">Published articles</div><div class="metric" id="total">—</div><div class="metric-sub">Currently in the public library</div></section>
+<section class="card"><div class="metric-label">Added in the last 7 days</div><div class="metric" id="week">—</div><div class="metric-sub">Based on article publish date</div></section>
+<section class="card"><div class="metric-label">Added in the last 30 days</div><div class="metric" id="month">—</div><div class="metric-sub">Based on article publish date</div></section>
+<section class="card"><div class="metric-label">Topics</div><div class="metric" id="topics">—</div><div class="metric-sub">Available article categories</div></section>
+</div>
+<div class="panels">
+<section class="card"><h2 class="panel-title">Article growth</h2><p class="panel-note">Published articles by day over the last 14 days.</p><div class="chart" id="growth" aria-label="Article growth chart"><span class="metric-sub">Loading chart…</span></div></section>
+<section class="card"><h2 class="panel-title">Articles by topic</h2><p class="panel-note">Distribution of published articles.</p><div class="category-list" id="categoryList">Loading topics…</div></section>
+</div>
+<section class="card" style="margin-top:15px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2 class="panel-title">Website health</h2><p class="panel-note" style="margin-bottom:0">Latest scheduled check of the published site and database.</p></div><span class="status" id="overall"><i class="dot"></i>Checking status…</span></div>
+<div class="health-grid">
+<div class="health-item"><strong>Published website</strong><span id="siteStatus">Waiting for check</span></div>
+<div class="health-item"><strong>Supabase database</strong><span id="dbStatus">Waiting for check</span></div>
+<div class="health-item"><strong>Last HTTP response</strong><span id="httpStatus">—</span></div>
+</div><p class="health-details" id="healthDetails">Loading the latest health-check record…</p><div class="timestamp" id="checkedAt"></div></section>
+</main>
+<footer><div class="wrap">InformationBank · Explore the world one idea at a time.</div></footer>
+<script>
+const URL="https://uiwzpapmsxqmvolknafk.supabase.co";
+const KEY="sb_publishable_BznsuKCxYP9wHUPe6_jp8g_fU6wSKlw";
+const headers={apikey:KEY,Authorization:"Bearer "+KEY};
+const $=id=>document.getElementById(id);
+function dateKey(d){return d.toISOString().slice(0,10)}
+function setHealth(data){
+ const overall=$("overall");overall.className="status";
+ if(!data||!data.available||!data.latest){overall.classList.add("warn");overall.innerHTML='<i class="dot"></i>No check recorded yet';$("healthDetails").textContent="The hourly health monitor has not saved a result yet.";return}
+ const h=data.latest,ok=!!h.site_ok&&!!h.database_ok;
+ overall.classList.add(ok?"good":"bad");overall.innerHTML='<i class="dot"></i>'+(ok?"All systems healthy":"Attention needed");
+ $("siteStatus").textContent=h.site_ok?"Online":"Unavailable";
+ $("dbStatus").textContent=h.database_ok?"Connected":"Issue detected";
+ $("httpStatus").textContent=h.site_status??"—";
+ $("healthDetails").textContent=h.details||"Latest automated check completed.";
+ $("checkedAt").textContent="Last checked: "+new Date(h.checked_at).toLocaleString();
+}
+async function load(){
+ $("refresh").disabled=true;$("refresh").textContent="Refreshing…";
+ try{
+  const [ar,cr,hr]=await Promise.all([
+   fetch(URL+"/rest/v1/articles?select=id,title,published_at,created_at,categories(name)&status=eq.published&order=published_at.desc",{headers}),
+   fetch(URL+"/rest/v1/categories?select=id,name&order=name.asc",{headers}),
+   fetch(URL+"/functions/v1/informationbank-health-check",{method:"GET",headers})
+  ]);
+  if(!ar.ok||!cr.ok)throw new Error("Could not load public article statistics ("+(ar.status||cr.status)+").");
+  const articles=await ar.json(),cats=await cr.json(),health=hr.ok?await hr.json():null;
+  $("total").textContent=articles.length;$("topics").textContent=cats.length;
+  const now=new Date(),dayMs=86400000,weekStart=new Date(now.getTime()-7*dayMs),monthStart=new Date(now.getTime()-30*dayMs);
+  const published=articles.map(a=>({...a,when:new Date(a.published_at||a.created_at)}));
+  $("week").textContent=published.filter(a=>a.when>=weekStart).length;
+  $("month").textContent=published.filter(a=>a.when>=monthStart).length;
+  const days=Array.from({length:14},(_,i)=>{const d=new Date(now);d.setHours(0,0,0,0);d.setDate(d.getDate()-(13-i));return {key:dateKey(d),label:d.toLocaleDateString(undefined,{month:"numeric",day:"numeric"}),count:0}});
+  const map=new Map(days.map(d=>[d.key,d]));published.forEach(a=>{const k=dateKey(a.when);if(map.has(k))map.get(k).count++});
+  const max=Math.max(1,...days.map(d=>d.count));
+  $("growth").innerHTML=days.map(d=>'<div class="bar-wrap" title="'+d.label+': '+d.count+' articles"><span class="bar-value">'+(d.count||"")+'</span><div class="bar" style="height:'+Math.max(2,d.count/max*145)+'px"></div><span class="bar-label">'+d.label+'</span></div>').join("");
+  const counts=new Map(cats.map(c=>[c.name,0]));published.forEach(a=>{const name=a.categories?.name||"Uncategorized";counts.set(name,(counts.get(name)||0)+1)});
+  const ranked=[...counts].sort((a,b)=>b[1]-a[1]);
+  $("categoryList").innerHTML=ranked.length?ranked.map(([name,count])=>'<div class="cat-row"><div class="cat-head"><span class="cat-name">'+name.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))+'</span><span class="cat-count">'+count+'</span></div><div class="track"><div class="fill" style="width:'+(published.length?count/published.length*100:0)+'%"></div></div></div>').join(""):'No categories yet.';
+  setHealth(health);
+ }catch(e){$("healthDetails").textContent=e.message;$("healthDetails").classList.add("error");}
+ finally{$("refresh").disabled=false;$("refresh").textContent="↻ Refresh dashboard";}
+}
+$("refresh").addEventListener("click",load);load();
+</script>
+</body></html>
