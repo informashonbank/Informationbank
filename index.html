@@ -170,7 +170,7 @@
   const SUPABASE_URL = "https://uiwzpapmsxqmvolknafk.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BznsuKCxYP9wHUPe6_jp8g_fU6wSKlw";
   const headers = {"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY};
-  let allArticles = [], activeCategory = "all", searchTerm = "";
+  let allArticles = [], activeCategory = "all", searchTerm = "", lastFilteredCount = 0, generatingArticle = false;
   const $ = id => document.getElementById(id);
   $("year").textContent = new Date().getFullYear();
 
@@ -242,9 +242,45 @@
   }
   $("closeDialog").addEventListener("click",()=>$("articleDialog").close());
   $("articleDialog").addEventListener("click",event=>{if(event.target===$("articleDialog"))$("articleDialog").close();});
-  $("searchForm").addEventListener("submit",event=>{
-    event.preventDefault();updateSearch($("searchInput").value);
+  async function generateArticleForSearch(query){
+    if(generatingArticle)return;
+    generatingArticle=true;
+    const host=$("articles");
+    $("count").textContent="Creating a new article…";
+    host.setAttribute("aria-busy","true");
+    host.innerHTML='<div class="empty"><h3>Writing your article…</h3><p>InformationBank is creating a new article about this topic. This may take a little while.</p></div>';
+    try{
+      const response=await fetch(SUPABASE_URL+"/functions/v1/generate-article",{
+        method:"POST",
+        headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({mode:"search",query})
+      });
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"The article could not be created.");
+      if(result.article){
+        allArticles=allArticles.filter(article=>article.id!==result.article.id);
+        allArticles.unshift(result.article);
+        renderArticles();
+      }else{
+        throw new Error("No article was returned. Please try again.");
+      }
+    }catch(error){
+      host.setAttribute("aria-busy","false");
+      host.innerHTML="";
+      const empty=document.createElement("div");empty.className="empty";
+      const title=document.createElement("h3");title.textContent="We couldn't create that article yet";
+      const message=document.createElement("p");message.textContent=error.message;
+      empty.append(title,message);host.append(empty);
+      $("count").textContent="Article not created";
+    }finally{
+      generatingArticle=false;
+    }
+  }
+  $("searchForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    updateSearch($("searchInput").value);
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
+    if(searchTerm&&lastFilteredCount===0)await generateArticleForSearch($("searchInput").value.trim());
   });
   $("searchInput").addEventListener("input",()=>updateSearch($("searchInput").value));
   $("quickTopics").addEventListener("click",event=>{
