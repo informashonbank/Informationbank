@@ -353,7 +353,7 @@
     $("libraryMode").setAttribute("aria-pressed",String(!web));
     $("webMode").setAttribute("aria-pressed",String(web));
     $("searchHint").textContent=web
-      ?"Search across the wider web. Results are provided by an independent search index with strict SafeSearch."
+      ?"Search the wider web with DuckDuckGo. No paid API key is needed; Safe Search is set to Strict."
       :"Search the InformationBank library by title, topic, summary, or article text.";
     $("searchInput").placeholder=web?"Search the web…":"Search articles, subjects, and ideas…";
     $("searchSubmit").textContent=web?"Search web":"Search";
@@ -372,53 +372,20 @@
       $("articles").innerHTML='<div class="empty"><h3>Explore beyond the library</h3><p>Enter a search above to find pages from across the web.</p></div>';
     }
   }
-  async function searchTheWeb(query){
-    if(webSearchBusy)return;
+  function searchTheWeb(query){
     const clean=query.trim();
     if(clean.length<2||clean.length>200){$("count").textContent="Enter a search between 2 and 200 characters.";return;}
-    webSearchBusy=true;
-    const host=$("articles");
-    $("resultsTitle").textContent="Web results for “"+clean+"”";
-    $("count").textContent="Searching the web…";
-    host.setAttribute("aria-busy","true");
-    host.innerHTML='<div class="empty"><h3>Searching across the web…</h3><p>Finding useful pages for your query.</p></div>';
-    try{
-      const response=await fetch(SUPABASE_URL+"/functions/v1/web-search",{
-        method:"POST",
-        headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
-        body:JSON.stringify({query:clean})
-      });
-      const data=await response.json();
-      if(!response.ok)throw new Error(data.error||"Web search is unavailable right now.");
-      host.replaceChildren();
-      host.setAttribute("aria-busy","false");
-      const note=document.createElement("p");note.className="web-search-note";note.textContent="Web pages found by Brave Search · Strict SafeSearch · Open a result to visit its source.";
-      host.append(note);
-      const results=Array.isArray(data.results)?data.results:[];
-      $("count").textContent=results.length+(results.length===1?" web result":" web results");
-      if(!results.length){
-        const empty=document.createElement("div");empty.className="empty";
-        const title=document.createElement("h3");title.textContent="No web results found";
-        const message=document.createElement("p");message.textContent="Try a broader search or different wording.";
-        empty.append(title,message);host.append(empty);return;
-      }
-      results.forEach(item=>{
-        const card=document.createElement("article");card.className="web-result";
-        const domain=document.createElement("div");domain.className="domain";domain.textContent=item.domain||"Website";
-        const heading=document.createElement("h3");const link=document.createElement("a");
-        link.href=item.url;link.target="_blank";link.rel="noopener noreferrer";link.textContent=item.title||"Open result";heading.append(link);
-        const description=document.createElement("p");description.textContent=item.description||"Open this page to read more.";
-        card.append(domain,heading,description);
-        if(item.age){const age=document.createElement("div");age.className="result-age";age.textContent=item.age;card.append(age);}
-        host.append(card);
-      });
-    }catch(error){
-      host.setAttribute("aria-busy","false");host.replaceChildren();
-      const empty=document.createElement("div");empty.className="empty";
-      const title=document.createElement("h3");title.textContent="Web search isn't ready yet";
-      const message=document.createElement("p");message.textContent=error.message;
-      empty.append(title,message);host.append(empty);$("count").textContent="Web search unavailable";
-    }finally{webSearchBusy=false;}
+    // Open a public search-results page directly. This avoids paid API keys and server-side API calls.
+    const url="https://duckduckgo.com/?q="+encodeURIComponent(clean)+"&kp=1&kl=us-en";
+    const opened=window.open(url,"_blank","noopener,noreferrer");
+    $("resultsTitle").textContent="Search the wider web";
+    $("count").textContent="Your search is opening in DuckDuckGo.";
+    const host=$("articles");host.setAttribute("aria-busy","false");host.replaceChildren();
+    const card=document.createElement("div");card.className="empty";
+    const title=document.createElement("h3");title.textContent="Continue your web search";
+    const message=document.createElement("p");message.textContent=opened?"DuckDuckGo opened in a new tab. Safe Search is set to Strict.":"Your browser blocked the new tab. Use the link below to open your results.";
+    const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Open DuckDuckGo results ↗";link.style.display="inline-block";link.style.marginTop="12px";link.style.color="var(--blue)";link.style.fontWeight="800";
+    card.append(title,message,link);host.append(card);
   }
   $("libraryMode").addEventListener("click",()=>setSearchMode("library"));
   $("webMode").addEventListener("click",()=>setSearchMode("web"));
@@ -575,14 +542,14 @@
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
     if(searchMode==="web"){await searchTheWeb($("searchInput").value);return;}
     updateSearch($("searchInput").value);
-    if(searchTerm&&lastFilteredCount===0)await generateArticleForSearch($("searchInput").value.trim());
+    
   });
   $("searchInput").addEventListener("input",()=>{if(searchMode!=="library")return;savedOnly=false;updateSavedUI();updateSearch($("searchInput").value);});
   $("sortSelect").addEventListener("change",event=>{sortMode=event.target.value;renderArticles();});
   $("savedButton").addEventListener("click",()=>{savedOnly=!savedOnly;updateSavedUI();renderArticles();$("results").scrollIntoView({behavior:"smooth",block:"start"});});
   $("clearButton").addEventListener("click",()=>{$("searchInput").value="";activeCategory="all";searchTerm="";savedOnly=false;updateSavedUI();if(searchMode==="web"){setSearchMode("web");}else{const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();else renderArticles();}$("searchInput").focus();});
   $("surpriseButton").addEventListener("click",()=>{if(!allArticles.length)return;const article=allArticles[Math.floor(Math.random()*allArticles.length)];activeCategory="all";searchTerm="";$("searchInput").value="";const all=$("categories").querySelector('[data-category="all"]');if(all)all.click();openArticle(article);});
-  $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});if(lastFilteredCount===0)generateArticleForSearch(button.dataset.discover);});
+  $("discoveryTopics").addEventListener("click",event=>{const button=event.target.closest("button[data-discover]");if(!button)return;activeCategory="all";$("searchInput").value=button.dataset.discover;updateSearch(button.dataset.discover);$("results").scrollIntoView({behavior:"smooth",block:"start"});});
   $("quickTopics").addEventListener("click",event=>{
     const button=event.target.closest("button[data-quick]");if(!button)return;
     const category=button.dataset.quick;
