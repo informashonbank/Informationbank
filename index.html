@@ -353,7 +353,7 @@
     $("libraryMode").setAttribute("aria-pressed",String(!web));
     $("webMode").setAttribute("aria-pressed",String(web));
     $("searchHint").textContent=web
-      ?"Search the wider web with DuckDuckGo. No paid API key is needed; Safe Search is set to Strict."
+      ?"Search the wider web right here using free Wikipedia results. You will stay on InformationBank while searching."
       :"Search the InformationBank library by title, topic, summary, or article text.";
     $("searchInput").placeholder=web?"Search the web…":"Search articles, subjects, and ideas…";
     $("searchSubmit").textContent=web?"Search web":"Search";
@@ -372,20 +372,49 @@
       $("articles").innerHTML='<div class="empty"><h3>Explore beyond the library</h3><p>Enter a search above to find pages from across the web.</p></div>';
     }
   }
-  function searchTheWeb(query){
+  async function searchTheWeb(query){
     const clean=query.trim();
     if(clean.length<2||clean.length>200){$("count").textContent="Enter a search between 2 and 200 characters.";return;}
-    // Open a public search-results page directly. This avoids paid API keys and server-side API calls.
-    const url="https://duckduckgo.com/?q="+encodeURIComponent(clean)+"&kp=1&kl=us-en";
-    const opened=window.open(url,"_blank","noopener,noreferrer");
+    const host=$("articles");
     $("resultsTitle").textContent="Search the wider web";
-    $("count").textContent="Your search is opening in DuckDuckGo.";
-    const host=$("articles");host.setAttribute("aria-busy","false");host.replaceChildren();
-    const card=document.createElement("div");card.className="empty";
-    const title=document.createElement("h3");title.textContent="Continue your web search";
-    const message=document.createElement("p");message.textContent=opened?"DuckDuckGo opened in a new tab. Safe Search is set to Strict.":"Your browser blocked the new tab. Use the link below to open your results.";
-    const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Open DuckDuckGo results ↗";link.style.display="inline-block";link.style.marginTop="12px";link.style.color="var(--blue)";link.style.fontWeight="800";
-    card.append(title,message,link);host.append(card);
+    $("count").textContent="Searching…";
+    host.setAttribute("aria-busy","true");
+    host.innerHTML='<div class="empty"><h3>Searching the web…</h3><p>Finding relevant encyclopedia pages.</p></div>';
+    try{
+      const endpoint="https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+encodeURIComponent(clean)+"&format=json&origin=*&srlimit=10&utf8=1";
+      const response=await fetch(endpoint,{headers:{"Accept":"application/json"}});
+      if(!response.ok)throw new Error("The free search service is temporarily unavailable.");
+      const data=await response.json();
+      const results=data.query?.search||[];
+      host.replaceChildren();
+      host.setAttribute("aria-busy","false");
+      $("count").textContent=results.length+" results · Free encyclopedia search";
+      if(!results.length){
+        const empty=document.createElement("div");empty.className="empty";
+        const title=document.createElement("h3");title.textContent="No results found";
+        const message=document.createElement("p");message.textContent="Try a different search phrase.";
+        empty.append(title,message);host.append(empty);return;
+      }
+      results.forEach(item=>{
+        const card=document.createElement("article");card.className="web-result";
+        const domain=document.createElement("div");domain.className="domain";domain.textContent="Wikipedia · English";
+        const heading=document.createElement("h3");
+        const link=document.createElement("a");
+        link.href="https://en.wikipedia.org/?curid="+encodeURIComponent(item.pageid);
+        link.target="_blank";link.rel="noopener noreferrer";link.textContent=item.title;
+        heading.append(link);
+        const snippet=document.createElement("p");
+        const parsed=new DOMParser().parseFromString("<div>"+(item.snippet||"")+"</div>","text/html");
+        snippet.textContent=parsed.body.textContent||"";
+        card.append(domain,heading,snippet);host.append(card);
+      });
+    }catch(error){
+      host.setAttribute("aria-busy","false");host.replaceChildren();
+      const empty=document.createElement("div");empty.className="empty";
+      const title=document.createElement("h3");title.textContent="Search is temporarily unavailable";
+      const message=document.createElement("p");message.textContent=error.message+" Your InformationBank library search is still available.";
+      empty.append(title,message);host.append(empty);$("count").textContent="Search unavailable";
+    }
   }
   $("libraryMode").addEventListener("click",()=>setSearchMode("library"));
   $("webMode").addEventListener("click",()=>setSearchMode("web"));
