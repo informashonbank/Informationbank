@@ -353,7 +353,7 @@
     $("libraryMode").setAttribute("aria-pressed",String(!web));
     $("webMode").setAttribute("aria-pressed",String(web));
     $("searchHint").textContent=web
-      ?"Search the wider web right here using free Wikipedia results. You will stay on InformationBank while searching."
+      ?"Search for information right here in InfoBank. You will stay on this website while searching."
       :"Search the InformationBank library by title, topic, summary, or article text.";
     $("searchInput").placeholder=web?"Search the web…":"Search articles, subjects, and ideas…";
     $("searchSubmit").textContent=web?"Search web":"Search";
@@ -366,7 +366,7 @@
     $("surpriseButton").hidden=web;
     if(!web)renderArticles();
     else{
-      $("resultsTitle").textContent="Search the wider web";
+      $("resultsTitle").textContent="InfoBank results";
       $("count").textContent="Search the web to see results";
       $("articles").setAttribute("aria-busy","false");
       $("articles").innerHTML='<div class="empty"><h3>Explore beyond the library</h3><p>Enter a search above to find pages from across the web.</p></div>';
@@ -376,7 +376,7 @@
     const clean=query.trim();
     if(clean.length<2||clean.length>200){$("count").textContent="Enter a search between 2 and 200 characters.";return;}
     const host=$("articles");
-    $("resultsTitle").textContent="Search the wider web";
+    $("resultsTitle").textContent="InfoBank results";
     $("count").textContent="Searching…";
     host.setAttribute("aria-busy","true");
     host.innerHTML='<div class="empty"><h3>Searching the web…</h3><p>Finding relevant encyclopedia pages.</p></div>';
@@ -388,7 +388,7 @@
       const results=data.query?.search||[];
       host.replaceChildren();
       host.setAttribute("aria-busy","false");
-      $("count").textContent=results.length+" results · Free encyclopedia search";
+      $("count").textContent=results.length+" InfoBank results · Free search";
       if(!results.length){
         const empty=document.createElement("div");empty.className="empty";
         const title=document.createElement("h3");title.textContent="No results found";
@@ -397,7 +397,7 @@
       }
       results.forEach(item=>{
         const card=document.createElement("article");card.className="web-result";
-        const domain=document.createElement("div");domain.className="domain";domain.textContent="Wikipedia · English";
+        const domain=document.createElement("div");domain.className="domain";domain.textContent="InfoBank result · Source: Wikipedia";
         const heading=document.createElement("h3");
         const link=document.createElement("a");
         link.href="https://en.wikipedia.org/?curid="+encodeURIComponent(item.pageid);
