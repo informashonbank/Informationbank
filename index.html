@@ -461,7 +461,7 @@
       const note=document.createElement("p");note.className="search-hint";
       note.textContent="Sources: Wikipedia encyclopedic pages, Wikidata knowledge entries, and OpenAlex research records. These sources do not cover everything and may not include the latest information. Check original sources and compare results.";
       host.append(note);
-      if(/\\be\\s*=\\s*mc\\s*4\\b/i.test(clean)){
+      if(/\be\s*=\s*mc\s*4\b/i.test(clean)){
         const tip=document.createElement("article");tip.className="web-result";
         const label=document.createElement("div");label.className="domain";label.textContent="POSSIBLE FORMULA CORRECTION";
         const title=document.createElement("h3");title.textContent="Did you mean E = mc²?";
