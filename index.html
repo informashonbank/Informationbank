@@ -473,10 +473,8 @@
       host.setAttribute("aria-busy","false");host.replaceChildren();
       const empty=document.createElement("div");empty.className="empty";
       const title=document.createElement("h3");title.textContent="Search is temporarily unavailable";
-      const message=document.createElement("p");message.textContent="The reference sources could not be reached right now. You can still use the full-web search links below.";
-      empty.append(title,message);
-      [["Google","https://www.google.com/search?q="],["Bing","https://www.bing.com/search?q="],["DuckDuckGo","https://duckduckgo.com/?q="]].forEach(([name,url])=>{const a=document.createElement("a");a.href=url+encodeURIComponent(clean);a.target="_blank";a.rel="noopener noreferrer";a.textContent=name+" ↗";empty.append(document.createTextNode(" "),a);});
-      host.append(empty);$("count").textContent="Reference sources unavailable";
+      const message=document.createElement("p");message.textContent="InformationBank could not reach its reference sources. Please try again in a moment.";
+      empty.append(title,message);host.append(empty);$("count").textContent="Reference sources unavailable";
     }
   }
   $("libraryMode").addEventListener("click",()=>setSearchMode("library"));
