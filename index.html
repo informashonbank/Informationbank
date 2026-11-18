@@ -379,38 +379,69 @@
     const clean=query.trim();
     if(clean.length<2||clean.length>200){$("count").textContent="Enter a search between 2 and 200 characters.";return;}
     const host=$("articles");
-    $("resultsTitle").textContent="InfoBank results";
-    $("count").textContent="Searching…";
+    $("resultsTitle").textContent="InfoBank web results";
+    $("count").textContent="Searching the web…";
     host.setAttribute("aria-busy","true");
-    host.innerHTML='<div class="empty"><h3>Searching the web…</h3><p>Finding relevant encyclopedia pages.</p></div>';
+    host.innerHTML='<div class="empty"><h3>Searching the web…</h3><p>Looking for useful pages and a quick explanation.</p></div>';
     try{
-      const endpoint="https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+encodeURIComponent(clean)+"&format=json&origin=*&srlimit=10&utf8=1";
-      const response=await fetch(endpoint,{headers:{"Accept":"application/json"}});
-      if(!response.ok)throw new Error("The free search service is temporarily unavailable.");
+      const base="https://en.wikipedia.org/w/api.php?origin=*&format=json&utf8=1";
+      const searchUrl=base+"&action=query&list=search&srsearch="+encodeURIComponent(clean)+"&srlimit=10";
+      const response=await fetch(searchUrl,{headers:{"Accept":"application/json"}});
+      if(!response.ok)throw new Error("The free web-search source is temporarily unavailable.");
       const data=await response.json();
       const results=data.query?.search||[];
+      let extracts={};
+      if(results.length){
+        const ids=results.slice(0,5).map(item=>item.pageid).join("|");
+        const detailUrl=base+"&action=query&prop=extracts&exintro=1&explaintext=1&exsentences=5&pageids="+encodeURIComponent(ids);
+        const detailResponse=await fetch(detailUrl,{headers:{"Accept":"application/json"}});
+        if(detailResponse.ok){
+          const detailData=await detailResponse.json();
+          extracts=detailData.query?.pages||{};
+        }
+      }
       host.replaceChildren();
       host.setAttribute("aria-busy","false");
-      $("count").textContent=results.length+" InfoBank results · Free search";
-      if(!results.length){
+      $("count").textContent=results.length+" matching reference pages · plus web-wide search links";
+      if(results.length){
+        const first=results[0], firstPage=extracts[String(first.pageid)]||{};
+        const answer=document.createElement("article");answer.className="web-result";
+        const answerLabel=document.createElement("div");answerLabel.className="domain";answerLabel.textContent="QUICK ANSWER · Wikipedia reference";
+        const answerTitle=document.createElement("h3");answerTitle.textContent=first.title;
+        const answerText=document.createElement("p");
+        answerText.textContent=firstPage.extract||"A short explanation is not available for this page. Open the source to read more.";
+        const answerLink=document.createElement("a");answerLink.href="https://en.wikipedia.org/?curid="+encodeURIComponent(first.pageid);
+        answerLink.target="_blank";answerLink.rel="noopener noreferrer";answerLink.textContent="Read the full reference ↗";
+        answer.append(answerLabel,answerTitle,answerText,answerLink);host.append(answer);
+        results.forEach(item=>{
+          const card=document.createElement("article");card.className="web-result";
+          const domain=document.createElement("div");domain.className="domain";domain.textContent="REFERENCE PAGE · Wikipedia";
+          const heading=document.createElement("h3");
+          const link=document.createElement("a");
+          link.href="https://en.wikipedia.org/?curid="+encodeURIComponent(item.pageid);
+          link.target="_blank";link.rel="noopener noreferrer";link.textContent=item.title;
+          heading.append(link);
+          const snippet=document.createElement("p");
+          const parsed=new DOMParser().parseFromString("<div>"+(item.snippet||"")+"</div>","text/html");
+          snippet.textContent=parsed.body.textContent||"Open this page for more information.";
+          card.append(domain,heading,snippet);host.append(card);
+        });
+      }else{
         const empty=document.createElement("div");empty.className="empty";
-        const title=document.createElement("h3");title.textContent="No results found";
-        const message=document.createElement("p");message.textContent="Try a different search phrase.";
-        empty.append(title,message);host.append(empty);return;
+        const title=document.createElement("h3");title.textContent="No reference pages found";
+        const message=document.createElement("p");message.textContent="Try a different phrase, or use one of the wider web-search links below.";
+        empty.append(title,message);host.append(empty);
       }
-      results.forEach(item=>{
-        const card=document.createElement("article");card.className="web-result";
-        const domain=document.createElement("div");domain.className="domain";domain.textContent="InfoBank result · Source: Wikipedia";
-        const heading=document.createElement("h3");
-        const link=document.createElement("a");
-        link.href="https://en.wikipedia.org/?curid="+encodeURIComponent(item.pageid);
-        link.target="_blank";link.rel="noopener noreferrer";link.textContent=item.title;
-        heading.append(link);
-        const snippet=document.createElement("p");
-        const parsed=new DOMParser().parseFromString("<div>"+(item.snippet||"")+"</div>","text/html");
-        snippet.textContent=parsed.body.textContent||"";
-        card.append(domain,heading,snippet);host.append(card);
-      });
+      const wide=document.createElement("article");wide.className="web-result";
+      const wideTitle=document.createElement("h3");wideTitle.textContent="Search across the wider web";
+      const wideText=document.createElement("p");wideText.textContent="Explore more websites and current pages with these search providers. Their results open in a new tab.";
+      const google=document.createElement("a");google.href="https://www.google.com/search?q="+encodeURIComponent(clean);google.target="_blank";google.rel="noopener noreferrer";google.textContent="Google results ↗";
+      const bing=document.createElement("a");bing.href="https://www.bing.com/search?q="+encodeURIComponent(clean);bing.target="_blank";bing.rel="noopener noreferrer";bing.textContent="Bing results ↗";
+      const ddg=document.createElement("a");ddg.href="https://duckduckgo.com/?q="+encodeURIComponent(clean);ddg.target="_blank";ddg.rel="noopener noreferrer";ddg.textContent="DuckDuckGo results ↗";
+      wide.append(wideTitle,wideText,google,document.createTextNode(" · "),bing,document.createTextNode(" · "),ddg);host.append(wide);
+      const note=document.createElement("p");note.className="search-hint";
+      note.textContent="About these results: InfoBank's quick answer and reference list use Wikipedia. For broader coverage, recent updates, and other viewpoints, compare the linked web searches. Always check the original sources.";
+      host.append(note);
     }catch(error){
       host.setAttribute("aria-busy","false");host.replaceChildren();
       const empty=document.createElement("div");empty.className="empty";
