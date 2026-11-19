@@ -132,7 +132,7 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a class="nav-link" href="#topics">Topics</a>
       <a class="nav-link" href="dashboard.html">Dashboard</a>
-      <a class="nav-link" href="mail.html">Mail</a>
+      <a class="nav-link" href="mail.html">Mail</a><a class="nav-link" href="mailto:maxchess.help@gmail.com">Email MaxChess</a>
       <button class="nav-link" id="authOpen" type="button">Sign in</button>
       <a class="nav-link nav-cta" href="business-cards.html">Business cards ↗</a>
     </nav>
@@ -418,12 +418,12 @@
       $("count").textContent=(wiki.results.length+entities.length+papers.length)+" references found · "+sourceCount+" of 3 sources responding";
       const makeCard=(label,titleText,description,url)=>{
         const card=document.createElement("article");card.className="web-result";
-        const domain=document.createElement("div");domain.className="domain";domain.textContent=label;
         const heading=document.createElement("h3"),link=document.createElement("a");
         link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent=titleText;
         heading.append(link);
-        const snippet=document.createElement("p");snippet.textContent=description||"Open this reference for more information.";
-        card.append(domain,heading,snippet);host.append(card);
+        const snippet=document.createElement("p");snippet.textContent=description||"Open this page for more information.";
+        const readLink=document.createElement("a");readLink.href=url;readLink.target="_blank";readLink.rel="noopener noreferrer";readLink.textContent="Read more ↗";
+        card.append(heading,snippet,readLink);host.append(card);
       };
       if(wiki.results.length){
         const first=wiki.results[0],page=wiki.extracts[String(first.pageid)]||{};
@@ -434,7 +434,7 @@
       if(!wiki.results.length&&!entities.length&&!papers.length){
         const empty=document.createElement("div");empty.className="empty";
         const title=document.createElement("h3");title.textContent="No reference matches found";
-        const message=document.createElement("p");message.textContent="Try different words or use a wider web search below.";
+        const message=document.createElement("p");message.textContent="Try different words or a more specific search.";
         empty.append(title,message);host.append(empty);
       }
       wiki.results.forEach(item=>{
@@ -449,25 +449,12 @@
         const year=item.publication_year?" · "+item.publication_year:"";
         makeCard("RESEARCH · OPENALEX",item.display_name||"Research work","Research publication"+year+". Check the publication page for its abstract and details.",place);
       });
-      const wide=document.createElement("article");wide.className="web-result";
-      const wideTitle=document.createElement("h3");wideTitle.textContent="Search the wider web";
-      const wideText=document.createElement("p");wideText.textContent="For current events, practical pages, and broader coverage, compare these full-web search results.";
-      wide.append(wideTitle,wideText);
-      [["Google","https://www.google.com/search?q="],["Bing","https://www.bing.com/search?q="],["DuckDuckGo","https://duckduckgo.com/?q="]].forEach(([name,url],i)=>{
-        if(i)wide.append(document.createTextNode(" · "));
-        const a=document.createElement("a");a.href=url+encodeURIComponent(clean);a.target="_blank";a.rel="noopener noreferrer";a.textContent=name+" results ↗";wide.append(a);
-      });
-      host.append(wide);
-      const note=document.createElement("p");note.className="search-hint";
-      note.textContent="Sources: Wikipedia encyclopedic pages, Wikidata knowledge entries, and OpenAlex research records. These sources do not cover everything and may not include the latest information. Check original sources and compare results.";
-      host.append(note);
       if(/\be\s*=\s*mc\s*4\b/i.test(clean)){
         const tip=document.createElement("article");tip.className="web-result";
-        const label=document.createElement("div");label.className="domain";label.textContent="POSSIBLE FORMULA CORRECTION";
         const title=document.createElement("h3");title.textContent="Did you mean E = mc²?";
         const p=document.createElement("p");p.textContent="Einstein’s mass–energy equivalence equation is commonly written E = mc² (with c squared), not E = mc⁴.";
         const a=document.createElement("a");a.href="https://en.wikipedia.org/wiki/Mass%E2%80%93energy_equivalence";a.target="_blank";a.rel="noopener noreferrer";a.textContent="Read about mass–energy equivalence ↗";
-        tip.append(label,title,p,a);host.insertBefore(tip,host.firstChild);
+        tip.append(title,p,a);host.insertBefore(tip,host.firstChild);
       }
     }catch(error){
       host.setAttribute("aria-busy","false");host.replaceChildren();
