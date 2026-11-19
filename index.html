@@ -375,6 +375,21 @@
       $("articles").innerHTML='<div class="empty"><h3>Explore beyond the library</h3><p>Enter a search above to find pages from across the web.</p></div>';
     }
   }
+
+  function appendWideWebLinks(host,query){
+    const clean=String(query||"").trim();
+    if(!clean)return;
+    const card=document.createElement("article");card.className="external-result";
+    const label=document.createElement("div");label.className="domain";label.textContent="Search across the wider web";
+    const heading=document.createElement("h3");heading.textContent="Explore more websites and current pages";
+    const links=document.createElement("p");
+    const providers=[["Google","https://www.google.com/search?q="],["Bing","https://www.bing.com/search?q="],["DuckDuckGo","https://duckduckgo.com/?q="]];
+    providers.forEach(([name,base],index)=>{
+      if(index)links.append(" · ");
+      const a=document.createElement("a");a.href=base+encodeURIComponent(clean);a.target="_blank";a.rel="noopener noreferrer";a.textContent=name+" results ↗";links.append(a);
+    });
+    card.append(label,heading,links);host.append(card);
+  }
   async function searchTheWeb(query){
     const clean=query.trim();
     if(clean.length<2||clean.length>200){$("count").textContent="Enter a search between 2 and 200 characters.";return;}
@@ -456,12 +471,13 @@
         const a=document.createElement("a");a.href="https://en.wikipedia.org/wiki/Mass%E2%80%93energy_equivalence";a.target="_blank";a.rel="noopener noreferrer";a.textContent="Read about mass–energy equivalence ↗";
         tip.append(title,p,a);host.insertBefore(tip,host.firstChild);
       }
+      appendWideWebLinks(host,clean);
     }catch(error){
       host.setAttribute("aria-busy","false");host.replaceChildren();
       const empty=document.createElement("div");empty.className="empty";
       const title=document.createElement("h3");title.textContent="Search is temporarily unavailable";
       const message=document.createElement("p");message.textContent="InformationBank could not reach its reference sources. Please try again in a moment.";
-      empty.append(title,message);host.append(empty);$("count").textContent="Reference sources unavailable";
+      empty.append(title,message);host.append(empty);appendWideWebLinks(host,clean);$("count").textContent="Reference sources unavailable";
     }
   }
   $("libraryMode").addEventListener("click",()=>setSearchMode("library"));
@@ -502,6 +518,15 @@
     $("count").textContent=filtered.length+(filtered.length===1?" article":" articles")+(showChessSite?" · 1 extra website":"");
     $("resultsTitle").textContent=savedOnly?"Your saved articles":searchTerm?"Search results":activeCategory==="all"?"Popular information":"Explore "+(allArticles.find(a=>a.categories?.slug===activeCategory)?.categories?.name||"topic");
     const host=$("articles");host.innerHTML="";host.setAttribute("aria-busy","false");
+    if(searchTerm)appendWideWebLinks(host,searchTerm);
+    if(/lichess/i.test(searchTerm)){
+      const lichess=document.createElement("article");lichess.className="external-result";
+      const domain=document.createElement("div");domain.className="domain";domain.textContent="Website";
+      const link=document.createElement("a");link.href="https://lichess.org/";link.target="_blank";link.rel="noopener noreferrer";
+      const title=document.createElement("h3");title.textContent="Lichess ↗";
+      const description=document.createElement("p");description.textContent="Visit Lichess, an online chess platform.";
+      link.append(title,description);lichess.append(domain,link);host.append(lichess);
+    }
     if(showChessSite){
       const result=document.createElement("article");result.className="external-result";
       const domain=document.createElement("div");domain.className="domain";domain.textContent="Recommended website";
