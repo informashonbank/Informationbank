@@ -50,10 +50,7 @@ body{margin:0;background:#eef1f7;color:var(--ink);font:16px/1.4 Arial,Helvetica,
 <p>All 10 business cards fit on one A4 page. Print at 100% scale on a single sheet.</p>
 <button onclick="window.print()">Print / Save as PDF</button>
 </div>
-<div class="sheet" id="front" aria-label="Front sides — ten cards"></div>
-<div class="sheet-label">Page 1 — Front of card (10 copies)</div>
-<div class="sheet" id="back" aria-label="Back sides — ten cards"></div>
-<div class="sheet-label">Page 2 — Back of card (10 copies)</div>
+<div class="sheet" id="front" aria-label="Ten InformationBank business cards on one A4 sheet"></div>
 <script>
 const site="https://informashonbank.github.io/Informationbank/";
 const qr="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=4&data="+encodeURIComponent(site);
@@ -64,13 +61,6 @@ function frontCard(){return `
 <div class="slogan">Explore the world<br>one idea at a time.</div>
 <div class="rule"></div><div class="mini">SEARCH&nbsp; • &nbsp;LEARN&nbsp; • &nbsp;DISCOVER</div></div>
 <div class="qrwrap"><img src="${qr}" alt="QR code linking to InformationBank"><div class="qrlabel">SCAN TO VISIT</div></div><div class="check"></div>
-</article>`}
-function backCard(){return `
-<article class="card back">
-<div class="back-logo"><div class="q">?</div><div class="name">InformationBank</div><div class="tag">Explore the world<br>one idea at a time.</div></div>
-<div class="back-divider"></div>
-<div class="back-info"><div class="line"><b>VISIT THE WEBSITE</b></div><div class="url">informashonbank.github.io/<br>Informationbank/</div>
-<div class="line">Search. Learn. Discover.</div><div class="line">Information for everyone.</div><div class="footer">EXPLORE • LEARN • DISCOVER</div></div><div class="check"></div>
 </article>`}
 document.getElementById("front").innerHTML=Array.from({length:10},frontCard).join("");
 </script>
