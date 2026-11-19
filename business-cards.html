@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>InformationBank — 10-up A4 business cards</title>
+<title>InformationBank — 10 business cards on one A4 sheet</title>
 <style>
 :root{--blue:#2459d6;--ink:#151923;--cream:#fffdf7}
 *{box-sizing:border-box}
@@ -39,8 +39,7 @@ body{margin:0;background:#eef1f7;color:var(--ink);font:16px/1.4 Arial,Helvetica,
 @media print{
  body{background:white}
  .toolbar,.sheet-label{display:none!important}
- .sheet{margin:0;width:7in;height:10in;box-shadow:none;break-after:page;page-break-after:always}
- .sheet:last-of-type{break-after:auto;page-break-after:auto}
+ .sheet{margin:0 auto;width:7in;height:10in;box-shadow:none;break-after:auto;page-break-after:auto}
 }
 @media screen and (max-width:760px){.sheet{transform:scale(.72);transform-origin:top center;margin-bottom:-2.7in}}
 </style>
@@ -48,7 +47,7 @@ body{margin:0;background:#eef1f7;color:var(--ink);font:16px/1.4 Arial,Helvetica,
 <body>
 <div class="toolbar">
 <h1>InformationBank business cards</h1>
-<p>10 cards per A4 sheet. Print both pages double-sided at 100% scale. Choose <b>flip on long edge</b>. Page 1 is the front; page 2 is the back.</p>
+<p>All 10 business cards fit on one A4 page. Print at 100% scale on a single sheet.</p>
 <button onclick="window.print()">Print / Save as PDF</button>
 </div>
 <div class="sheet" id="front" aria-label="Front sides — ten cards"></div>
@@ -74,7 +73,6 @@ function backCard(){return `
 <div class="line">Search. Learn. Discover.</div><div class="line">Information for everyone.</div><div class="footer">EXPLORE • LEARN • DISCOVER</div></div><div class="check"></div>
 </article>`}
 document.getElementById("front").innerHTML=Array.from({length:10},frontCard).join("");
-document.getElementById("back").innerHTML=Array.from({length:10},backCard).join("");
 </script>
 </body>
 </html>
