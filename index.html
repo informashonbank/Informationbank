@@ -378,7 +378,7 @@
 
   function appendKnownWebsiteLinks(host,query){
     const clean=String(query||"").trim();
-    if(!/\\blichess\\b/i.test(clean))return;
+    if(!/\blichess\b/i.test(clean))return;
     const card=document.createElement("article");card.className="external-result";
     const label=document.createElement("div");label.className="domain";label.textContent="Website";
     const link=document.createElement("a");link.href="https://lichess.org/";link.target="_blank";link.rel="noopener noreferrer";
