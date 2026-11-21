@@ -75,23 +75,18 @@ function niceDate(value){const d=new Date(value);return Number.isNaN(d.getTime()
 function shortText(value,max){const text=String(value||'').replace(/\s+/g,' ').trim();return text.length>max?text.slice(0,max-1)+'…':text;}
 function el(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
 async function ensureProfile(){
- let {data,error}=await client.from('ib_mail_profiles').select('id,handle');
- if(error)throw error;
- profiles=data||[];
- myProfile=profiles.find(p=>p.id===currentUser.id)||null;
+ const existing=await client.from('ib_mail_profiles').select('id,handle').eq('id',currentUser.id).maybeSingle();
+ if(existing.error)throw existing.error;
+ myProfile=existing.data||null;
+ profiles=myProfile?[myProfile]:[];
  if(!myProfile){
    let base=String(currentUser.email||'member').split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g,'').replace(/^[._-]+|[._-]+$/g,'').slice(0,24);
    if(base.length<2)base='member';
-   let handle=base;
-   if(profiles.some(p=>p.handle===handle))handle=base.slice(0,16)+'-'+currentUser.id.replace(/-/g,'').slice(0,8);
+   const handle=base+'-'+currentUser.id.replace(/-/g,'').slice(0,8);
    const inserted=await client.from('ib_mail_profiles').insert({id:currentUser.id,handle}).select('id,handle').single();
-   if(inserted.error){
-     const retryHandle='member-'+currentUser.id.replace(/-/g,'').slice(0,10);
-     const retry=await client.from('ib_mail_profiles').insert({id:currentUser.id,handle:retryHandle}).select('id,handle').single();
-     if(retry.error)throw retry.error;
-     myProfile=retry.data;
-   }else myProfile=inserted.data;
-   profiles.push(myProfile);
+   if(inserted.error)throw inserted.error;
+   myProfile=inserted.data;
+   profiles=[myProfile];
  }
 }
 async function loadMessages(){
@@ -99,6 +94,12 @@ async function loadMessages(){
  const result=await client.from('ib_mail_messages').select('id,sender_id,recipient_id,subject,body,created_at,read_at').eq(folder==='inbox'?'recipient_id':'sender_id',currentUser.id).order('created_at',{ascending:false}).limit(100);
  if(result.error)throw result.error;
  messages=result.data||[];
+ const participantIds=[...new Set(messages.flatMap(m=>[m.sender_id,m.recipient_id]))];
+ if(participantIds.length){
+   const people=await client.from('ib_mail_profiles').select('id,handle').in('id',participantIds);
+   if(people.error)throw people.error;
+   profiles=[...new Map([...(profiles||[]),...(people.data||[])].map(p=>[p.id,p])).values()];
+ }
  $('inboxCount').textContent=folder==='inbox'?String(messages.filter(m=>!m.read_at).length):'';
  renderList();
  if(selectedId&&!messages.some(m=>m.id===selectedId)){selectedId=null;renderReader(null);}
@@ -144,9 +145,12 @@ function openCompose(to,subject){
 async function sendMessage(event){
  event.preventDefault();const address=$('toAddress').value.trim().toLowerCase();const match=address.match(/^([a-z0-9][a-z0-9._-]{1,29})@infobank\.github\.io$/);
  if(!match){status('composeStatus','Enter an InformationBank address ending in @infobank.github.io.',true);return;}
- const recipient=profiles.find(p=>p.handle===match[1]);
+ const lookup=await client.from('ib_mail_profiles').select('id,handle').eq('handle',match[1]).maybeSingle();
+ if(lookup.error){status('composeStatus',lookup.error.message,true);return;}
+ const recipient=lookup.data;
  if(!recipient){status('composeStatus','That InformationBank address was not found. Check the username.',true);return;}
  if(recipient.id===currentUser.id){status('composeStatus','You cannot send a message to your own address.',true);return;}
+ if(!profiles.some(p=>p.id===recipient.id))profiles.push(recipient);
  const body=$('body').value.trim();if(!body){status('composeStatus','Write a message before sending.',true);return;}
  $('sendButton').disabled=true;status('composeStatus','Sending…');
  const result=await client.from('ib_mail_messages').insert({sender_id:currentUser.id,recipient_id:recipient.id,subject:$('subject').value.trim()||'(no subject)',body});
