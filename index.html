@@ -310,7 +310,7 @@
   let maxChessPopup=null,maxChessSSOState=null;
   $("maxchessSSO").addEventListener("click",()=>{
     maxChessSSOState=crypto.randomUUID();
-    maxChessPopup=window.open("https://themaxchessss.github.io/sso-connect.html","maxchessLichessSignIn","popup,width=520,height=720");
+    maxChessPopup=window.open("https://themaxchessss.github.io/sso-connect.html?ib_state="+encodeURIComponent(maxChessSSOState),"maxchessLichessSignIn","popup,width=520,height=720");
     if(!maxChessPopup){setAuthStatus("Allow pop-ups for InformationBank, then try again.",true);return;}
     setAuthStatus("A secure MaxChess window opened. Choose Continue with Lichess.");
   });
