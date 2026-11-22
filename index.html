@@ -246,7 +246,7 @@
       <label>Email address<input id="authEmail" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
       <label>Password<input id="authPassword" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters"></label>
       <div class="auth-actions"><button class="auth-primary" id="authSubmit" type="submit">Sign in</button><button class="auth-secondary" id="authToggle" type="button">Create account</button></div>
-      <button class="auth-secondary" id="maxchessSSO" type="button">♟ Continue with MaxChess</button>
+      <button class="auth-secondary" id="maxchessSSO" type="button">♟ Sign in on MaxChess (including Lichess)</button>
       <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
     </form>
   </section>
@@ -307,40 +307,9 @@
     else{showAuthForm();showAuthMode("signin");}
     $("authDialog").showModal();
   });
-  let maxChessSSOState = null, maxChessSSOPopup = null;
   $("maxchessSSO").addEventListener("click",()=>{
-    maxChessSSOState = crypto.randomUUID();
-    const url = "https://themaxchessss.github.io/sso-connect.html?flow=signin-v2&state="+encodeURIComponent(maxChessSSOState);
-    maxChessSSOPopup = window.open(url,"maxchess-sso","popup=yes,width=520,height=620");
-    if(!maxChessSSOPopup){setAuthStatus("Your browser blocked the sign-in window. Allow pop-ups for InformationBank and try again.",true);return;}
-    $("maxchessSSO").disabled=true;
-    setAuthStatus("A MaxChess sign-in window opened. Sign in there if needed.");
-  });
-  window.addEventListener("message",async event=>{
-    if(event.origin!=="https://themaxchessss.github.io" || event.source!==maxChessSSOPopup) return;
-    const message=event.data||{};
-    if(message.type!=="MAXCHESS_SSO_SESSION" || !maxChessSSOState || message.state!==maxChessSSOState || !message.access_token) return;
-    maxChessSSOState=null;
-    setAuthStatus("Verifying your MaxChess account…");
-    try{
-      const response=await fetch("https://uiwzpapmsxqmvolknafk.supabase.co/functions/v1/maxchess-sso",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+message.access_token},
-        body:JSON.stringify({})
-      });
-      const result=await response.json();
-      if(!response.ok) throw new Error(result.error||"MaxChess sign-in could not be completed.");
-      const verified=await authClient.auth.verifyOtp({token_hash:result.token_hash,type:"magiclink"});
-      if(verified.error) throw verified.error;
-      updateAuthUI(verified.data.user||verified.data.session?.user||null);
-      setAuthStatus("You're signed in to InformationBank with MaxChess.");
-      $("authDialog").close();
-    }catch(error){
-      setAuthStatus(error.message||"MaxChess sign-in failed. Please try again.",true);
-    }finally{
-      $("maxchessSSO").disabled=false;
-      maxChessSSOPopup=null;
-    }
+    // Use MaxChess's regular sign-in experience, which includes its Lichess option.
+    window.location.assign("https://themaxchessss.github.io/");
   });
   $("authSwitch").addEventListener("click",()=>startAnotherAccount("signin"));
   $("authAdd").addEventListener("click",()=>startAnotherAccount("signup"));
