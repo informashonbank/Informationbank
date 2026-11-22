@@ -310,7 +310,7 @@
   let maxChessSSOState = null, maxChessSSOPopup = null;
   $("maxchessSSO").addEventListener("click",()=>{
     maxChessSSOState = crypto.randomUUID();
-    const url = "https://themaxchessss.github.io/sso-connect.html?state="+encodeURIComponent(maxChessSSOState);
+    const url = "https://themaxchessss.github.io/sso-connect.html?flow=signin-v2&state="+encodeURIComponent(maxChessSSOState);
     maxChessSSOPopup = window.open(url,"maxchess-sso","popup=yes,width=520,height=620");
     if(!maxChessSSOPopup){setAuthStatus("Your browser blocked the sign-in window. Allow pop-ups for InformationBank and try again.",true);return;}
     $("maxchessSSO").disabled=true;
