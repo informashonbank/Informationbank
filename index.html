@@ -307,9 +307,23 @@
     else{showAuthForm();showAuthMode("signin");}
     $("authDialog").showModal();
   });
+  let maxChessPopup=null,maxChessSSOState=null;
   $("maxchessSSO").addEventListener("click",()=>{
-    // Use MaxChess's regular sign-in experience, which includes its Lichess option.
-    window.location.assign("https://themaxchessss.github.io/");
+    maxChessSSOState=crypto.randomUUID();
+    maxChessPopup=window.open("https://themaxchessss.github.io/sso-connect.html","maxchessLichessSignIn","popup,width=520,height=720");
+    if(!maxChessPopup){setAuthStatus("Allow pop-ups for InformationBank, then try again.",true);return;}
+    setAuthStatus("A secure MaxChess window opened. Choose Continue with Lichess.");
+  });
+  window.addEventListener("message",async(event)=>{
+    if(event.origin!=="https://themaxchessss.github.io"||event.source!==maxChessPopup)return;
+    const m=event.data;if(!m||m.type!=="MAXCHESS_SSO_SESSION"||m.state!==maxChessSSOState||typeof m.access_token!=="string")return;
+    maxChessPopup=null;maxChessSSOState=null;setAuthStatus("MaxChess verified your sign-in. Connecting InformationBank…");
+    try{
+      const response=await fetch(SUPABASE_URL+"/functions/v1/maxchess-sso",{method:"POST",headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+m.access_token,"Content-Type":"application/json"}});
+      const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"InformationBank sign-in failed.");
+      const verified=await authClient.auth.verifyOtp({token_hash:result.token_hash,type:"magiclink"});if(verified.error)throw verified.error;
+      updateAuthUI(verified.data.session?.user||null);$("authDialog").close();setAuthStatus("Signed in to InformationBank with MaxChess.");
+    }catch(error){setAuthStatus(error.message||"Could not connect MaxChess. Try again.",true);}
   });
   $("authSwitch").addEventListener("click",()=>startAnotherAccount("signin"));
   $("authAdd").addEventListener("click",()=>startAnotherAccount("signup"));
